@@ -14,6 +14,10 @@ https://qiita.com/chelproc/items/de83a6f2959490109b49
 
 こちらの記事のReact-hook-formのregisterを模した方法がとてもしっくり来たので参考にさせていただきました。
 
+:::message
+状態管理はRecoilで記載しています。
+:::
+
 ```typescript:useFocusControl.ts
 import { useRef } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -167,7 +171,7 @@ export const TableBody = () => {
 	);
 };
 ```
-親コンポーネント側でhookの使用を宣言し、行の配列をmapすると同時にregisterを渡してあげ…
+親コンポーネント側でhookの使用を宣言し、行の配列をmapすると同時にregisterオブジェクトを渡してあげ…
 
 
 ```typescript:TableRow.tsx
@@ -220,4 +224,4 @@ export function TableRow(props: Props) {
 ```
 行コンポーネントのinputタグ内で、関数の受け渡しを行います。
 スプレッド構文を使いonKeyDown関数とref関数を渡しつつ、引数に行と列を受け取ります。
-これで今どこの要素にいて何行目何列なのかをuseFocusControlに伝えつつonChangeで関数を受け取ることができます。
+これで今どこの要素にいて何行目何列なのかをuseFocusControlに伝えつつinputタグのonKeyDown,refに指定する関数を受け取ることができます。
