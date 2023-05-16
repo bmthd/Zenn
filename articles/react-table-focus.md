@@ -7,15 +7,15 @@ published: true
 ---
 行と列の数が変動する表形式のフォームでExcelのようにEnterキー、Shift+Enterキーで上下移動できるようにするカスタムフックを作成しました。
 制作していたWebアプリのなかで、表形式のフォームを扱うところがありExcelのような動きを期待されるUIだったので実装方法を考えました。
-素の状態ではTabキーとShift+Tabキーでの移動はできますが、Enterキーで次の行の金額を打ちに行けないのは不便です。
-そのついでに矢印キーでの移動、最初の行か最後の行の場合にもそれぞれ繋げられるように対応しました。
+素の状態ではTabキーとShift+Tabキーでの横移動はできますが、Enterキーで次の行の金額を打ちに行けないのは不便です。
+そのついでに矢印キーでの移動と、最初の行か最後の行の場合にもそれぞれ繋げられるように対応しました。
 
 https://qiita.com/chelproc/items/de83a6f2959490109b49
 
-こちらの記事のReact-hook-formのregisterを模した方法がとてもしっくり来たので参考にさせていただきました。
+こちらの記事内のReact-hook-formのregisterを模した方法がとてもしっくり来たので参考にさせていただきました。
 
 :::message
-状態管理はRecoilで記載しています。
+動的な行,列数は状態管理ライブラリRecoilで現在の行,列数を取得することで実現しています。
 :::
 
 ```typescript:useFocusControl.ts
@@ -224,4 +224,7 @@ export function TableRow(props: Props) {
 ```
 行コンポーネントのinputタグ内で、関数の受け渡しを行います。
 スプレッド構文を使いonKeyDown関数とref関数を渡しつつ、引数に行と列を受け取ります。
-これで今どこの要素にいて何行目何列なのかをuseFocusControlに伝えつつinputタグのonKeyDown,refに指定する関数を受け取ることができます。
+これで今どこの要素にいて何行目何列なのかをuseFocusControlに伝えつつinputタグのonKeyDown,refで指定した関数を受け取ることができます。
+下記リンク先に幅1024px以上の端末でアクセスすると表形式フォームを体験できます。
+
+https://point-sprint.bmth.dev/
