@@ -8,7 +8,7 @@ published: true
 # 概要
 
 作成しているWebアプリにおいて、スマホ表示とPC表示でコンポーネントを出し分けたかった。
-始めはReact-responsiveのuseMediaQueryを使用し下記のように書いていた。
+始めはreact-responsiveのuseMediaQueryを使用し下記のように書いていた。
 
 ```typescript:index.tsx
 export default function Home() {
