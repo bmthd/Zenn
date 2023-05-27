@@ -1,5 +1,5 @@
 ---
-title: "Reactのレスポンシブ表示にコードは使わない方が良い"
+title: "react-responsiveを表示に使うとちらつくので使わないほうが良い"
 emoji: "📱"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ['React','TailwindCSS']
