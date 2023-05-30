@@ -1,5 +1,5 @@
 ---
-title: "【個人開発】ガチ未経験で楽天市場のキャンペーンを攻略するサイト作った"
+title: "【個人開発】ガチ未経験で楽天市場のキャンペーンを攻略するサイト作ったら案件決まった"
 emoji: "🐼"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [個人開発,TypeScript,Nextjs,React,Recoil]
