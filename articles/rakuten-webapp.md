@@ -5,9 +5,11 @@ type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [個人開発,TypeScript,Nextjs,React,Recoil]
 published: true
 ---
-# はじめに
+## はじめに
+
 もともとJavaしか開発経験がなかったのでもう一つくらいポートフォリオに書ける言語の経験が欲しいなと思い、モダンなスタックでアプリケーションを作ろうと考えました。
 筆者のスペックとしては
+
 - プログラミング系職業訓練校卒業
 - Java Silver,Oracle Blonze SQL
 - 実務未経験
@@ -18,10 +20,12 @@ QiitaやZennを見ているとたまに現れるめちゃくちゃ理解力の�
 ベテランのエンジニアの方には目に余るかもしれませんが生暖かい目で見ていただければと思います…！
 これからWebアプリを作りたい未経験の方の参考になれば嬉しいです。
 
-# 概要
+## 概要
+
 楽天市場のお買い物マラソンというキャンペーンを攻略するための獲得ポイント計算ツールを作成しました。
 https://point-sprint.bmth.dev/
 楽天市場では、大きく分けて3種類のキャンペーンがあります。
+
 - SPU 楽天のサービスを利用すればするほど還元率が増える恒常キャンペーン
 - お買い物マラソン 毎月2回、定期的に開催される大型キャンペーン
 - 突発キャンペーン 数%ポイント還元率が増える基本的に1日だけのキャンペーン
@@ -33,8 +37,7 @@ https://point-sprint.bmth.dev/
 動作の様子はTwitterに投稿した動画を見るか、実際にアクセスしてご確認ください。
 https://twitter.com/j_ktwr/status/1656241836544135169
 
-
-# 何を解決したかったか
+## 何を解決したかったか
 
 - 誰もが管理不要で使えるツールに
 
@@ -53,48 +56,51 @@ Excelなどで管理している人は散見されましたが誰もができる
 お得になる割合が不明瞭なまま注文してしまうということが体感上ありました。
 それを解消します。
 
-# こだわりポイント
+## こだわりポイント
+
 - レスポンシブ対応
 
 モバイルではカード形式カルーセル、PCでは表形式でUIを作り分けました。
 初めはモバイルも表形式で作成してみたのですが、スマートフォンで表をいじくるのは難しく専用UIでの対応の必要性を実感しました。
 2週間くらいでリリースしたかったのですがこのせいで工数が倍程度になりましたw
+
 - 使っていて楽しいUI
 
 「とりあえず動く」だけでは使ってもらえないと思ったので、見栄えするデザインを研究しました。
 やるからにはとことんこだわり、操作していて楽しいUIを目指しました。
 SPUの設定にはモーダル、計算結果の表示にカウントアップなど見た目に楽しい機能を入れたのもポイント。
 実際の動きもぜひ見てください！
-- PC版ではEnterキーでのフォーカスに対応
 
+- PC版ではEnterキーでのフォーカスに対応
 Excelと同じ感覚で使ってもらえるよう、Enterキーで次のフォーム、Shift+Enterで前のフォームに移動できるようにしました。
 
-# 技術スタック
+## 技術スタック
+
 Next.js,TypeScript,Tailwind CSS,Recoil,Netlify
 
 初めて触る技術ばかりだったので、手探りでいろいろ試しながら技術選定をしていきました。
-- Next.js,React
 
+- Next.js,React
 PagesやAPI Routesが直感的で使いやすそうだったので。
 Vercelのライブラリがどれも素晴らしく感動してます。
-- TypeScript
 
+- TypeScript
 Pythonや素のJavaScript触ったあとだとわかる。
 型があるって良い…！
-- Tailwind CSS
 
+- Tailwind CSS
 みんなが使っていたので。
 Bootstrapと使い方が似ていてとても使いやすかったです。
-- Recoil
 
+- Recoil
 Propsバケツリレーでは状態管理に無理が生じ、必要に迫られて導入しました。
 後ほど解説します。
-- Netlify
 
+- Netlify
 Vercelが便利すぎたので使いたかったのですが商用NGの制約があるのでNetlifyに。
 Netlifyは現状日本リージョンのサーバが無いのでLighthouseのスコアが少し落ちました。
 
-# 内部構成紹介
+## 内部構成紹介
 
 ```d
 src
@@ -127,6 +133,7 @@ src
     └── types.ts 
 
 ```
+
 お問い合わせページ(inquiry.tsx)を除くと１ページに収まるシンプルな構成です。
 
 ```typescript:index.tsx
@@ -140,56 +147,57 @@ import { Adsense, CalculateResult, Information, RakutenItems, SpuModal } from '@
 import { TableHeader, TableBody, TableFooter } from '@/components/table';
 
 export default function Home() {
-	const setIsMobile = useSetRecoilState(isMobileState);
-	const isMobile = useMediaQuery({ maxWidth: 1024 });
+ const setIsMobile = useSetRecoilState(isMobileState);
+ const isMobile = useMediaQuery({ maxWidth: 1024 });
 
-	useEffect(() => {
-		setIsMobile(isMobile);
-	}, [isMobile]);
+ useEffect(() => {
+  setIsMobile(isMobile);
+ }, [isMobile]);
 
-	return (
-		<>
-			<Head>
-				<title>ポイントスプリント 楽天市場お買い物マラソン攻略計算ツール</title>
-			</Head>
+ return (
+  <>
+   <Head>
+    <title>ポイントスプリント 楽天市場お買い物マラソン攻略計算ツール</title>
+   </Head>
 
-			<div className="lg:hidden">
-				<Information />
-				<div className="bg-blue-100 m-6">
-					<Adsense />
-				</div>
-				<SpuModal />
-				<ItemCarousel />
-				<CarouselFooter />
-			</div>
+   <div className="lg:hidden">
+    <Information />
+    <div className="bg-blue-100 m-6">
+     <Adsense />
+    </div>
+    <SpuModal />
+    <ItemCarousel />
+    <CarouselFooter />
+   </div>
 
-			<div className="max-lg:hidden">
-				<div className="flex max-w-5xl justify-center items-center mx-auto">
-					<Information />
-					<SpuModal />
-				</div>
-				<form className="grid justify-center">
-					<table className='border-spacing-0'>
-						<TableHeader />
-						<tbody>
-							<TableBody />
-							<TableFooter />
-						</tbody>
-					</table>
-				</form>
-			</div>
+   <div className="max-lg:hidden">
+    <div className="flex max-w-5xl justify-center items-center mx-auto">
+     <Information />
+     <SpuModal />
+    </div>
+    <form className="grid justify-center">
+     <table className='border-spacing-0'>
+      <TableHeader />
+      <tbody>
+       <TableBody />
+       <TableFooter />
+      </tbody>
+     </table>
+    </form>
+   </div>
 
-			<CalculateResult />
-			<div className="bg-blue-100 m-6">
-				<Adsense />
-			</div>
-			<div className="flex flex-col justify-center items-center">
-				<RakutenItems />
-			</div>
-		</>
-	);
+   <CalculateResult />
+   <div className="bg-blue-100 m-6">
+    <Adsense />
+   </div>
+   <div className="flex flex-col justify-center items-center">
+    <RakutenItems />
+   </div>
+  </>
+ );
 }
 ```
+
 - クライアントサイド
 
 スマホ表示とPC表示でそれぞれ専用のコンポーネントをCSSで出し分けています。
@@ -199,16 +207,18 @@ export default function Home() {
 サーバー側での処理はNext.jsのAPI Routeでリクエストを受け取り、レスポンスを返しています。
 このアプリでは広告用に楽天市場APIのリクエストを行うsearch.ts,お問い合わせ内容をメールで送信するinquiry.tsの2つです。
 
-# 一部コード紹介
+## 一部コード紹介
 
 難しかったところや、工夫したところを紹介させていただきます。
 
 ### Recoil
+
 ページ部品のコンポーネント化を進めていくうちに、子コンポーネントから孫コンポーネントへ状態を受け渡すことになったり、親子の関係がないコンポーネントでも状態を見に行く必要が出てきてuseStateだけでは無理が生じてきました。
 ここで、状態管理ライブラリについて調べ始めました。
 Recoilに決めた理由は、比較的新しいこと、React開発元のMeta製ライブラリだからなのもありますが、何より使ってみて非常にシンプルだったことです。
 
 簡単に説明すると
+
 - atom
   単一の状態
 - atomFamily
@@ -222,13 +232,13 @@ Recoilに決めた理由は、比較的新しいこと、React開発元のMeta�
 途中までは値の状態をもとに計算結果を出力する関数をコンポーネント内に配置していましたが、Recoilを導入したことによってそれらの関数をselectorとして別ファイルに纏められるようになり、表示と処理を分けられるようになり責務が明確化されました。
 
 ### useFocusControl.ts
+
 PC版ページでのフォーカス移動について、別記事に詳しく纏めました。
 
 https://zenn.dev/bmth/articles/react-table-focus
 
+## 終わりに
 
-
-# 終わりに
 この記事を書いている最中におかしなところに気づき、修正した箇所が結構あります。
 これからはアウトプットもしていこうと思いました。
 
