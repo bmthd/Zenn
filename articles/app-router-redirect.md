@@ -12,6 +12,7 @@ Next.jsのApp Routerでリダイレクト先を動的に決定したい場合、
 ヘッダーやフッターのナビゲーションで最新の記事などにアクセスさせるURLを埋め込んでおき、動的に遷移先を決めたいという要件があった。
 
 ![フッターのイメージ](/images/app-router-redirect/screenshot.png)
+*フッターのイメージ*
 
 Server ComponentではuseRouter()は使えず、クライアントコンポーネントでは非同期処理が使えないため、どうやるのか一瞬迷った。
 ドキュメントを確認するとnext/navigationにredirect()というそのまんまの関数を発見。
