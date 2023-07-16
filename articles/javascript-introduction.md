@@ -52,7 +52,7 @@ for(let i = 0; i > 10; i++){
 イミュータブルな変数です。
 1度宣言した変数に再代入ができないため、安全です。
 関数型プログラミングではconstのみを使用し、変更可能な変数は避けます。
-これだけ覚えておけば十分かもしれません。
+Reactなどのコンポーネント志向のライブラリは関数型プログラミング前提の設計になっているため、それらを使う場合はこれだけ覚えておけば十分かもしれません。
 
 ## 関数
 
@@ -87,6 +87,61 @@ const count = n => (
 
 引数が1個であれば()は省略できるようです。
 
+## インポート/エクスポート
+
+インストールしたライブラリや別ファイルでエクスポートした関数などをインポートする方法を説明します。
+
+- ES6以降のやり方
+
+```javascript:export
+export const add = (a,b) => {
+    return a + b;
+}
+```
+
+```javascript:import
+import {math} = './math';
+
+math.add(1+2);
+```
+
+関数にexportと付けるだけでpublicにすることができます。
+インポートする際はエディタがインポート文を補完してくれるので手書きすることが少なく楽です。
+
+```javascript:exportDefault
+const add = (a,b) => {
+    return a + b;
+}
+const minus = (a,b) => {
+    return a - b;
+}
+export {add,minus};
+```
+
+このように複数の関数をまとめてexportすることもできます。
+
+- ES5以前のやり方
+
+時々使うことがあるので古いやり方も載せておきます。
+
+```javascript:export
+function add(a,b){
+    return a + b;
+}
+
+module.export = {
+    add:add;
+}
+```
+
+
+```javascript:import
+const math = require('/math')
+
+math.add(1+2);
+```
+
+直感的でないため新しいやり方でやることが多いです。
 
 ## 配列
 
@@ -98,7 +153,7 @@ const immutableList = [1,2,3] as const;
 
 配列の宣言はこの通りです。
 as constを付けて宣言すると配列内部の値も不変にすることができます。
-意図しないところで並び替えされてしまったことがあるので付けておいたほうが良さそうです。
+意図しないところで並び替えされてしまったことがあるので付けおくのが無難です。
 
 配列にはそのコピーを生み出すためのArray.prototypeメソッドが用意されています。
 
@@ -133,13 +188,26 @@ const newList = list.filter((item)=>{
 
 console.log(newList); // => [1,2,3,4,5]
 ```
-　に
+
+に
 boolean値を返すコールバック関数を指定することで、その条件で絞り込んだ結果の配列を取得できるメソッドです。
 
 他のも様々なメソッドが用意されており、面白いので興味があれば調べてみてください。
 
+## TypeScript
 
-```javascript
+TypeScriptは厳密な型定義を設けたJavaScriptと互換性のある言語です。
+JSのコードをTSで呼び出すことができ、書き味も型の部分以外変わらないため、JSが分かれば学習コストほぼ無しで導入可能です。
+厳密に型チェックが入るおかげで想定外の代入をコンパイル前にチェックできるため、プロジェクト開発ではJavaScriptよりもTypeScriptのほうが利用されます。
+型があることで、エディタ上での自動補完も効くようになるため開発体験も良くなります。
+非常に楽なので、TypeScriptで始めることをおすすめします。
+
+```typescript:type.ts
+export type User {
+    id:number;
+    name:string;
+    
+}
 
 ```
 
