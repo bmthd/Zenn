@@ -185,7 +185,7 @@ const Page = async ({
 export default Page;
 ```
 
-非常にシンプルで一目瞭然です。
+変数やHTMLを宣言的に記述でき非常にシンプルで一目瞭然です。
 まとまりに名前がついており、これをパズルのピースのように組み合わせることでサイトを組み立てることができます。
 Reactはコンポーネント志向で作られており、JSXという技術でJavaScript上にHTMLを直接記述する事ができます。
 
@@ -197,7 +197,7 @@ const Component = () => {
     },{
         title: "2つ目の項目",
         body:"ハロー"
-    }]
+    }];
     return(
         <>
          <h1>ページタイトル</h1>
@@ -289,11 +289,10 @@ export const getServerSideProps = async (){
 }
 
 export default Home;
-
 ```
 
 非同期関数を使ったデータの取得はgetServerSideProps関数内でのみ行なえます。
-この名前の関数をトップレベルのページに配置しておくと読み込み前にサーバー側で処理が実行され、ページにデータが渡される格好です。
+この名前の関数をトップレベルのページに配置しておくと読み込み前にサーバー側で処理が実行され、ページにデータが渡されます。
 コンポーネント内ではデータの取得が行えないので、propsとして受け取る必要があります。
 
 ## App Router
@@ -360,12 +359,32 @@ export default page;
 
 ### CSSフレームワーク
 
-Tailwind CSS
-Tailwindは初学者に教えるとCSSを覚えないからダメと言う人もいますが、個人的には手っ取り早く成果物を完成させたほうが座学よりよほど学べるところが多いと感じました。
+Next.jsのCSSにはベストプラクティスが今のところ存在せず、様々な方法がありますが初心者におすすめなのはTailwind CSSです。
+
+-Tailwind CSS
+予めCSSが当たっているクラスが用意されており、そのクラスをHTMLに適用することでデザインを適用できます。
+
+```javascript:Item.tsx
+type Props = {
+  children: React.ReactNode;
+};
+
+export const Item = ({ children }: Props) => {
+
+  return (
+      <div className="text-2xl font-bold bg-secondary p-2 text-white text-center rounded-md">
+        {children}
+      </div>
+  );
+};
+```
+
+このように、classNameに適用したいクラスを記述するだけでデザインを適用できます。
+実際に適用されるCSSはVSCodeのTailwind CSS拡張機能を使うと確認できます。
+
 私はFlexboxとGrid LayoutはTailwindで覚えました。
 チートシートを見て元のCSSをイメージしながら使っていました。
 https://nerdcave.com/tailwind-cheat-sheet
-Tailwindだけでも全然いけると思います。
 
 ### おすすめライブラリ
 
@@ -408,7 +427,6 @@ GitのようなDBのblanch機能、自動バックアップなど独自性もあ
 外部キー制約が無いのにも理由があり、複雑なクエリのパフォーマンスが向上するそうです。
 私はもともとMySQLを使っていたのもあり、自宅のDBに入れていたデータをPlanetScaleに移行してサービスを運営しています。
 
-
 ### おすすめデプロイ先
 
 商用利用でない場合はVercelが一番良いです。
@@ -433,5 +451,3 @@ Cloudflareを噛ませたり、画像のみ国内サーバを使うなどの対�
 その名の通りまるでできの良いペアプログラミング相手が常にいるかのような感覚です。
 60日間無料で試すことができるのでぜひ試してみてください。
 マジで良いです。
-
-## 終わりに
