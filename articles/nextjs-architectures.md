@@ -365,12 +365,7 @@ Next.jsのCSSにはベストプラクティスが今のところ存在せず、�
 予めCSSが当たっているクラスが用意されており、そのクラスをHTMLに適用することでデザインを適用できます。
 
 ```javascript:Item.tsx
-type Props = {
-  children: React.ReactNode;
-};
-
-export const Item = ({ children }: Props) => {
-
+export const Item = ({ children }) => {
   return (
       <div className="text-2xl font-bold bg-secondary p-2 text-white text-center rounded-md">
         {children}
