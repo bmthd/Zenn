@@ -16,7 +16,7 @@ Reactでコンポーネントを作成する際に、複数の条件でpropsを�
 
 ```tsx:Button.tsx
 type Props = {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
 };
 
@@ -33,16 +33,16 @@ type ButtonProps = Props & {
 export const Button = ({ children, className, href, onClick }: LinkProps | ButtonProps) => {
   const mergedClassName = `bg-blue-500 hover:bg-blue-600 inline-flex items-center text-white font-bold font-md rounded-md p-4 ${className}`;
 
-  if (!href) {
+  if (onClick) {
     return (
       <button className={mergedClassName} onClick={onClick}>
         {children}
       </button>
     );
   } else {
-    const blank = href?.startsWith("http");
+    const target = href?.startsWith("http") ? "_blank": undefined;
     return (
-      <a href={href} className={mergedClassName} target={blank ? "_blank" : undefined}>
+      <a href={href} className={mergedClassName} target={target}>
         {children}
       </a>
     );
@@ -78,13 +78,13 @@ https://typescriptbook.jp/reference/statements/never
 
 ```tsx:Button.tsx
 type Props = {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
 };
 
 type LinkProps = Props & {
   type: "link";
-  href: string;;
+  href: string;
 };
 
 type ButtonProps = Props & {
@@ -93,7 +93,7 @@ type ButtonProps = Props & {
 };
 ```
 
-まず初めに、propsの型を判別しようとしたが、コンポーネントで受け取る際にオブジェクトではなくスプレッド構文で受け取るため型の情報が消えてしまっていた。
+まず初めに、propsの型を判別しようとしたが、コンポーネントで受け取る際にオブジェクトではなく展開された状態で受け取ってしまうため、型の情報が消えてしまっていた。
 
 次に、Union型を使ってみたが、Union型の場合は両方の型に共通するプロパティしか使えないため、`href`と`onClick`の両方を使うことができなかった。
 
@@ -101,6 +101,6 @@ type ButtonProps = Props & {
 
 https://zenn.dev/tnyo43/articles/2014089257521a
 
-最終的には、Union型を使って型を分岐させ、使わないプロパティはNever型を定義することで、不要なプロパティの指定を防ぐことができた。
+最終的には、Union型を使って型を分岐させ、使わないプロパティはnever型を定義することで、不要なプロパティの指定を防ぐことができた。
 
 Reactの記事は多いが、それ故かゆいところに手が届く内容はあったとしても埋もれている気がするので今後も書いていこうと思う。
