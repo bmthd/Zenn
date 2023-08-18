@@ -15,13 +15,13 @@ published: true
 
 ## 事の始まり
 
-こちらの記事でWebアプリをサーバーレスアーキテクチャに移行した際に、データベースはMySQLベースのサーバーレスDB、PlanetScaleを採用しました。
+こちらの記事でWebアプリをサーバーレスアーキテクチャに移行した際に、データベースとしてMySQLベースのサーバーレスDB、PlanetScaleを採用しました。
 
 https://zenn.dev/bmth/articles/comike-oshinagaki
 
-先日制作を終えた後すぐPlanetScaleの無料枠範囲内である10億行Readを超えてしまいました。
-Next.jsの開発サーバーで再読み込みするたびに万単位でRow readsが増えていることには気づいていたのですが、期日内にリリースすることを最優先に考えていたため制作中は後回しにしていたのです。
-PlanetScaleの無料プランでは制限を超えて利用した場合もお金はかからず、「サービスが低下する可能性がある」ということのようでした。
+先日制作を終えた後にPlanetScaleの無料枠範囲内である10億行Readを超えていることに気づきました。
+Next.jsの開発サーバーで再読み込みするたびに万単位でRow readsが増えていたのでおかしいとは思っていたのですが、期日内にリリースすることを最優先に考えていたため制作中は後回しにしていたのです。
+PlanetScaleの無料プランでは制限を超えて利用した場合もお金はかからず、「サービスが低下する可能性がある」ということでした。
 本番環境ではキャッシュが効くとはいえ、開発サーバーでページを読み込むたびに数万行読むのは不快です。
 初回アクセスのページでは読込み時間もかかっていたし、いつ止められるのかわからない状態で使い続けるのも怖いので直したいところです。
 ![psql.png](/images/psql-slowquery/psql.png)
@@ -46,9 +46,9 @@ Viewに対して実行するSQL文がスロークエリとなっていました�
 space表の内容と、そのspaceに紐づく投稿日時が最新のtweet表の内容を取得するクエリです。
 実際のクエリは62行もある複雑なクエリで話の本質ではないため省略します。
 
-```table:出力結果
+```sql:出力結果
 id | select_type | table           | type   | possible_keys              | key                | key_len | ref                   | rows   | filtered | Extra
------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 1  | PRIMARY     | j1              | const  | PRIMARY                    | PRIMARY            | 766     | const                 | 1      | 100      | Using index; Using temporary; Using filesort
 1  | PRIMARY     | t1              | ref    | PRIMARY,day_event_id_idx   | day_event_id_idx   | 766     | const                 | 2      | 100      | Using where; Using index; Start temporary
 1  | PRIMARY     | j0              | eq_ref | PRIMARY                    | PRIMARY            | 4       | oshinagaki.t1.id      | 1      | 16.67    | Using where
@@ -158,7 +158,7 @@ id | select_type | table           | type   | possible_keys                     
 
 ## クエリ自体の最適化
 
-もともと、コード側だけでクエリを実現したかったのですが、使用しているフレームワークのPrismaではリレーション先のテーブルを加工した結果を含めたクエリを1回で取得することができません。
+もともと、コード側だけでクエリを実現したかったのですが、使用しているORMのPrismaではリレーション先のテーブルを加工した結果を含めたクエリを1回で取得することができません。
 2回の実行を許容するのであればPrismaだけで可能なのですが、それだと遅延を許すことになるためViewを使って予めtweetテーブルの最新のtweet.idをspace表に結合したViewを作成していました。
 このアプローチ自体は問題ないはずだったので、View定義をあらためてよくよく確認したところ、View側にTweetテーブルの全てのカラムを含めていたことに気づきました。
 Tweetの実体はPrismaでincludeさせるため、View側に持たせてしまうと冗長になってしまいます。
@@ -188,7 +188,7 @@ FROM
 
 ```sql
 id | select_type | table           | type   | possible_keys                           | key                | key_len | ref                       | rows   | filtered | Extra
------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 1  | SIMPLE      | j1              | const  | PRIMARY,event_id_idx                    | PRIMARY            | 766     | const                     | 1      | 100      | Using index; Using temporary; Using filesort
 1  | SIMPLE      | t1              | ref    | PRIMARY,day_event_id_idx                | day_event_id_idx   | 766     | const                     | 2      | 100      | Using where; Using index; Start temporary
 1  | SIMPLE      | j0              | eq_ref | PRIMARY                                 | PRIMARY            | 4       | oshinagaki.t1.id          | 1      | 16.67    | Using where
