@@ -10,7 +10,7 @@ published: true
 
 - PlanetScaleの読み取り行数を節約したい人
 - データベースのスロークエリを改善したい人
-- Prismaでの照合順序を含めたINDEXの貼り方を知りたい人
+- Prismaでの照合順序を含めたIndexの貼り方を知りたい人
 - PlanetScaleの無料枠を超えたらどうなるか知りたい人
 
 ## 事の始まり
@@ -71,13 +71,13 @@ id | select_type | table           | type   | possible_keys              | key  
 いろいろ項目はありますが、右から3番めのrows列が実際に取得している行数です。(横長ですみませんがスクロールしてください。)
 74行だけ取得するためのクエリのはずなのに、なんと1回のSELECT文で17ステップ約20万行を読み取っていました…！
 tweetテーブルに関しては6万行を3回も読んでいます。
-地味に上から4つ目の8718行も大きいです。こちらはspaceの検索にINDEXされていないblock.nameを使用している影響と推察されます。
+地味に上から4つ目の8718行も大きいです。こちらはspaceの絞り込みにIndexされていないblock.nameを使用している影響と推察されます。
 
 ちなみにPlanetScaleではどのクエリが重くなっているのかを自動で分析してくれており、管理画面で確認することが可能です。
 なんと実行には1秒前後もかかってしまっていたことがわかりました。
 ![スロークエリ](/images/psql-slowquery/slow-query.png)
 
-## INDEXの作成
+## Indexの作成
 
 tweetテーブルとblockテーブルに問題があることがわかったため改善方法を考えます。
 tweetテーブルを取得する際にはそのスペースのツイートの中で最新のツイートを取得させる処理を行っていました。
@@ -99,7 +99,7 @@ ON
     ((`s`.`id` = `latest_tweet`.`space_id`));
 ```
 
-安直にいけばspace_idと降順に並び替えたcreated_atにINDEXを貼ればいけるはず…！
+安直にいけばspace_idと降順に並び替えたcreated_atにIndexを貼ればいけるはず…！
 
 ```diff js:schema.prisma
 model Tweet {
@@ -127,10 +127,10 @@ DB定義はPrismaのSchemaで管理していたので、Prismaでそのままdb 
 https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#index
 CREATE INDEX文でも良いと思います。
 
-WHERE句を使って検索する列にはINDEXを貼ったほうが良いというのが調べてわかったため、同様にblockテーブルのnameにもINDEXを貼りました。
+WHERE句を使って検索する列にはIndexを貼ったほうが良いというのが調べてわかったため、同様にblockテーブルのnameにもIndexを貼りました。
 その結果…
 
-```sql:INDEX作成後のEXPLAIN
+```sql:Index作成後のEXPLAIN
 id | select_type | table           | type   | possible_keys                                    | key                           | key_len | ref                                         | rows   | filtered | Extra
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 1  | PRIMARY     | j1              | const  | PRIMARY,event_id_idx                             | PRIMARY                       | 766     | const                                       | 1      | 100      | Using index; Using temporary; Using filesort
@@ -161,8 +161,8 @@ id | select_type | table           | type   | possible_keys                     
 もともと、コード側だけでクエリを実現したかったのですが、使用しているORMのPrismaではリレーション先のテーブルを加工した結果を含めたクエリを1回で取得することができません。
 2回の実行を許容するのであればPrismaだけで可能なのですが、それだと遅延を許すことになるためViewを使って予めtweetテーブルの最新のtweet.idをspace表に結合したViewを作成していました。
 このアプローチ自体は問題ないはずだったので、View定義をあらためてよくよく確認したところ、View側にTweetテーブルの全てのカラムを含めていたことに気づきました。
-Tweetの実体はPrismaでincludeさせるため、View側に持たせてしまうと冗長になってしまいます。
-更に、Viewのクエリ実行時にINDEX対象行(この場合Tweet表の主キー)のみのSQL文になっていればINDEXの対象にもなります。
+tweetの実体はPrismaのクエリでincludeさせるため、View側に持たせてしまうと冗長になってしまいます。
+更に、Viewのクエリ実行時にIndex対象行(この場合Tweet表の主キー)のみのSQL文になっていればIndexの対象にもなります。
 また、集約関数は対象表が大きいとコストが大きくパフォーマンスが悪化することもわかりました。
 それなら、とGROUP BYを使用せずにJOINだけで最新のtweet.idを取得するようにViewを定義し直しました。
 
@@ -183,8 +183,8 @@ FROM
 
 ## 最終的な実行計画
 
-最後に新たに作成したINDEXと被る、外部キー制約相当のINDEXを削除しました。
-(PlanetScaleでは外部キー制約は存在しないので手動で貼る必要があります。)
+最後に新たに作成したIndexと被る、外部キー制約相当の不要なIndexを削除しました。
+(PlanetScaleでは外部キー制約は存在しないので手動でIndexを貼っていました)
 
 ```sql
 id | select_type | table           | type   | possible_keys                           | key                | key_len | ref                       | rows   | filtered | Extra
@@ -206,7 +206,7 @@ id | select_type | table           | type   | possible_keys                     
 ```
 
 14ステップ184行にまで減らすことに成功しました！！！
-せっかく作ったcreated_atのINDEXは使われていないようですが、GROUP BYを使用しなくなったことで行数を絞り込んだあとにtweet表を取得するようになり、取得行数が大幅に減りました。
+せっかく作ったcreated_atのIndexは使われていないようですが、GROUP BYを使用しなくなったことで行数を絞り込んだあとにtweet表を取得するようになり、取得行数が大幅に減りました。
 主な目的は読み取り行数を削減することでしたが、副産物として当初のクエリでは約750msかかっていたところを約20ms前後にまで短縮することができました！
 読み取り行数の多さとパフォーマンスの悪さは比例するという仮定の元、ステップ数は妥協しとにかく読み取り行数を減らすためのチューニングのみを考えていましたが、仮定の通りパフォーマンスが良くなってくれました。
 
@@ -218,7 +218,7 @@ id | select_type | table           | type   | possible_keys                     
 実際にチューニングしてみた記事が少なかったのでお困りの方のお力に慣れれば幸いです。
 
 ![](/images/psql-slowquery/psql2.png)
-いろいろなINDEXを貼ったり剥がしたりして試行錯誤していたのですが、いろいろ試してたら無料枠の4倍使ってましたw
+いろいろなIndexを貼ったり剥がしたりして試行錯誤していたのですが、いろいろ試してたら無料枠の4倍使ってましたw
 ちなみにまだ止まってません。
 対策を打ったので来月からは無料枠に収まると思いますが、このまま何ヶ月も放置していたらおそらく止まるのでしょうか。
 
