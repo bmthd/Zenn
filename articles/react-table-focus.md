@@ -26,7 +26,7 @@ import { useRecoilValue } from 'recoil';
 
 type FocusControlResult = {
   onKeyDown: (event: KeyboardEvent) => void;
-  ref: ((element: HTMLInputElement) => void) | ((element: HTMLSelectElement) => void);
+  ref: (element: HTMLInputElement) => void;
 };
 
 export const useFocusControl = () => {
