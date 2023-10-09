@@ -1,3 +1,4 @@
-# Zenn CLI
+# Zenn記事用リポジトリ
 
-* [📘 How to use](https://zenn.dev/zenn/articles/zenn-cli-guide)
+誤字脱字など修正のプルリクエスト大歓迎です。
+<https://zenn.dev/bmth>
