@@ -134,7 +134,7 @@ export const forms: Forms = [
           pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$",
           autoComplete: "email",
         },
-      },
+      } as InputField<'input'>,
       {
         key: "password",
         title: "パスワード",
@@ -144,7 +144,7 @@ export const forms: Forms = [
           pattern: "^[a-zA-Z0-9]{8,}$",
           autoComplete: "new-password",
         },
-      },
+      } as InputField<'input'>,
       {
         key: "password_confirmation",
         title: "パスワード(確認)",
@@ -154,7 +154,7 @@ export const forms: Forms = [
           pattern: "^[a-zA-Z0-9]{8,}$",
           autoComplete: "new-password",
         },
-      },
+      } as InputField<'input'>,
     ],
   },...] //省略
 ```
@@ -278,10 +278,10 @@ export const useFormPages = (forms: Forms, initialValues:{ [key: string]: any })
           if (param.options) {
             return (
               <Select
-                id={param.key}
                 wrapperClassName={param.wrapperClassName || "col-span-2"}
                 labelText={param.title}
                 {...(param.attributes as ComponentProps<typeof Select>)}
+                id={param.key}
                 value={formValues[param.key]}
                 onChange={handleChange}>
                 {param.options.map((option) => (
@@ -294,10 +294,10 @@ export const useFormPages = (forms: Forms, initialValues:{ [key: string]: any })
           } else {
             return (
                 <Input
-                  id={param.key}
                   wrapperClassName={param.wrapperClassName || "col-span-2"}
-                  labelText={param.title}
+                  labelText={param.title}    
                   {...(param.attributes as ComponentProps<typeof Input>)}
+                  id={param.key}              
                   value={formValues[param.key]}
                   onChange={handleChange}
                 />
@@ -357,3 +357,6 @@ hookの戻り値はas constを使用することでタプルが使えるよう�
 また、はじめは再利用することをあまり意識せずに実装していたため、ところどころ型定義が雑な部分があります。
 より良い実装方法や、間違いを見つけましたら教えていただけると嬉しいです。
 お読みいただきありがとうございました。
+
+## 追記
+
