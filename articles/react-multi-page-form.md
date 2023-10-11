@@ -22,15 +22,15 @@ published: true
 
 - render hooksパターンを使用
 今回の要件では、親コンポーネントでフォームのページ数を管理し、小コンポーネント側でフォームの状態を保持させる必要があります。
-フォームのページ数が必然的に複数ページに分かれてしまうため、通常であればuseContextやRedux,Recoilなどのグローバルで状態を管理できるライブラリを使ってフォームの状態を保持させることになります。
-そこで思いついたのが、render hooksパターン。
+フォームのページ数が必然的に複数ページに分かれてしまうため、通常であれば`useContext`やRedux,Recoilなどのグローバルで状態を管理できるライブラリを使ってフォームの状態を保持させることになります。
+そこで思いついたのが、hook自体がコンポーネントを返却するrender hooksパターン。
 複数のページコンポーネントと状態を1つのファイルに同居させることで、グローバルな状態を使用しなくても複数のページから状態を参照できるようになります。
 
 - 状態管理はuseReducerを採用
-useStateを使うと、フォームの入力欄1つにつき1つの状態と更新用関数の定義が必要になってしまいます。
-useReducerを使えば、フォームの名前を型定義するだけで、フォームの数に関わらず状態管理と更新用関数を定義できます。
+`useState`を使うと、フォームの入力欄1つにつき1つの状態と更新用関数の定義が必要になってしまいます。
+`useReducer`を使えば、フォームの名前を型定義するだけで、フォームの数に関わらず状態管理と更新用関数を定義できます。
 初期値はまとめて渡すことができるようになります。
-加えて、reducer関数はsetStateと異なり純粋関数なので、テストがしやすくなります。
+加えて、reducer関数は`setState`と異なり純粋関数なので、テストがしやすくなります。
 また、あとから別のフォームが増えたときにreducer関数自体の再利用もできます。
 
 - ページコンポーネントを動的に生成
@@ -43,7 +43,8 @@ useReducerを使えば、フォームの名前を型定義するだけで、フ�
 
 :::message
 インポート文は省略しています。
-CSSを充てただけのラッパーコンポーネントも登場しますが、雰囲気で読み取っていただければと思います。
+CSSを充てただけのラッパーコンポーネントも登場しますが、本筋には関係ないので記載しません。
+雰囲気で読み取っていただければと思います。
 :::
 
 ## ディレクトリ構成
@@ -64,7 +65,7 @@ app
 
 Next.jsのApp Routerを使用しているため、本体はpage.tsxです。
 コロケーションを意識してフォームの関連ファイルは全て_registerFormディレクトリにまとめています。
-pagesルーターや素のReactなどでもフォルダの位置や、呼び出し元ファイルが変わるだけで同様に実装できると思います。
+Pages Routerや素のReactなどでもフォルダの位置や、呼び出し元ファイルが変わるだけで同様に実装できると思います。
 
 ## 型定義
 
@@ -94,8 +95,8 @@ export type Form<T extends { [key: string]: any }> = {
 ```
 
 フォーム自動生成用に書くオブジェクトの型定義です。
-InputFieldのattributesには、VSCodeの補完が働くようにしています。
-ジェネリクスでHTMLのタグ名を指定してあげれば、そのタグに対応したattributeを補完してくれます。
+`InputField`の`attributes`には、VSCodeの補完が働くようにしています。
+ジェネリクスでHTMLのタグ名を指定してあげれば、そのタグに対応した属性を補完してくれます。
 
 ## フォームの定義
 
@@ -240,11 +241,11 @@ export const RegisterForm = () => {
 ```
 
 このコンポーネントの関心は、フォームのページ数を管理することと、ページの切り替えです。
-この記事の肝であるuseFormPagesというカスタムフックに実装を押し込むことによって、このコンポーネントはかなりシンプルになりました。
-このフックに定義したフォームのオブジェクトを渡し、フォームの入力値と入力用ページの配列を受け取ることで、`CurrentPage`変数で現在のページを表示しています。
-`<CurrentPage />`としたいところですが、そのためにhookの戻り値を関数`() => JSX.Element[]`としてしまうと、useCallbackでも回避不能なアンマウントが発生し、文字を1文字入力するごとにフォーカスが外れてしまうため、変数として埋め込んでいます。
+この記事の肝である`useFormPages`というカスタムフックに実装を押し込むことによって、シンプルでわかりやすい実装になっています。
+このフックにあらかじめ定義しておいた初期値とフォームのオブジェクトを渡し、フォームの入力値と入力用ページの配列を受け取ることで、`CurrentPage`変数で現在のページを表示しています。
+`<CurrentPage />`としたいところですが、そのためにhookの戻り値を関数`() => JSX.Element[]`としてしまうと、`useCallback`でも回避不能なアンマウントが発生し、文字を1文字入力するごとにフォーカスが外れてしまうため、変数として埋め込んでいます。
 
-この例ではフォームのページ数の管理はクエリパラメータを使用していますが、Next.js以外を利用する場合はuseStateなどで現在のページ数を保管できます。
+この例ではフォームのページ数の管理はクエリパラメータを使用していますが、Next.js以外を利用する場合は`useState`などで現在のページ数を保管できます。
 進捗の表示はシンプルに`<progress>`タグを使用しています。
 定義済みオブジェクトからカテゴリーを取得して表示させても良いかもしれません。
 余談ですが、この実装中に初めてHTMLの`<progress>`タグを知りました。すごい！
@@ -284,36 +285,34 @@ export const useFormPages = <T extends { [key: string]: any }>(
             [dispatch]
           );
 
-          if (param.options) {
-            return (
+          return (
+          <React.Fragment key={key}>
+            {param.options ? (
               <Select
-                  key={key}
-                  {...(param.attributes as ComponentProps<typeof Select>)}
-                  id={param.key as string}
-                  wrapperClassName={param.wrapperClassName || "col-span-2"}
-                  labelText={param.title}
-                  value={formValues[key]}
-                  onChange={handleChange}>
-                  {param.options.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </Select>
-            );
-          } else {
-            return (
-                <Input
-                  key={key}
-                  {...(param.attributes as ComponentProps<typeof Input>)}
-                  id={param.key as string}
-                  wrapperClassName={param.wrapperClassName || "col-span-2"}
-                  labelText={param.title}
-                  value={formValues[key]}
-                  onChange={handleChange}
-                />
-            );
-          }
+                {...(param.attributes as ComponentProps<typeof Select>)}
+                id={key}
+                wrapperClassName={param.wrapperClassName || "col-span-2"}
+                labelText={param.title}
+                value={formValues[key]}
+                onChange={handleChange}>
+                {param.options.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </Select>
+            ) : (
+              <Input
+                {...(param.attributes as ComponentProps<typeof Input>)}
+                id={key}
+                wrapperClassName={param.wrapperClassName || "col-span-2"}
+                labelText={param.title}
+                value={formValues[key]}
+                onChange={handleChange}
+              />
+            )}
+          </React.Fragment>
+        );
         })}
       </div>
     );
@@ -340,7 +339,7 @@ export const useFormPages = <T extends { [key: string]: any }>(
 };
 ```
 
-useReducerを使って、フォームの初期値と更新用関数を定義しています。
+`useReducer`を使って、フォームの初期値と更新用関数を定義しています。
 この記事を書くに当たり、再利用を意識して型パズルをしたので、少し読みづらいかもしれません。
 改変前のコードを張っておきます。
 
@@ -353,15 +352,15 @@ export const reducer = (state: FormValues, action: { key: keyof FormValues; valu
 
 型さえ定義してあれば、reducer関数は数行で済んでしまうから驚きですね。
 
-formPages変数の中ではインポートした定義値を元にフォームの中身を1ページ毎に配列として自動生成しています。
+`formPages`変数の中ではインポートした定義値を元にフォームの中身を1ページ毎に配列として自動生成しています。
 やっていることはラッパーコンポーネントにオブジェクトの値を渡しているだけ。
 selectタグとinputタグで分岐して違うコンポーネントを生成しています。
 ここの実装を変えるだけで、違うタグを使ったフォームを作ることもできます。
 
-confirmPage変数では、確認画面に表示されるカード形式の確認用カードを自動生成しています。
+`confirmPage`変数では、確認画面に表示されるカード形式の確認用カードを自動生成しています。
 ページ番号も渡しているため、そのページに飛ぶボタンも埋め込むことができます。
 
-hookの戻り値はas constを使用することでタプルが使えるようになり、useStateやuseReducerのように[状態, 更新用関数]という形で受け取ることができ、おしゃれです。(関数じゃないケド…)
+カスタムフックの戻り値は`as const`を使用することでタプルが使えるようになり、`useState`や`useReducer`のように[状態, 更新用関数]という形で受け取ることができ、おしゃれです。(関数じゃないケド…)
 
 ## おわりに
 
