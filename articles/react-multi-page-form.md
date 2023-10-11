@@ -27,7 +27,7 @@ published: true
 複数のページコンポーネントと状態を1つのファイルに同居させることで、グローバルな状態を使用しなくても複数のページから状態を参照できるようになります。
 
 - 状態管理はuseReducerを採用
-useStateを使うと、フォームの数1つにつき1つの状態と更新用関数の定義が必要になってしまいます。
+useStateを使うと、フォームの入力欄1つにつき1つの状態と更新用関数の定義が必要になってしまいます。
 useReducerを使えば、フォームの名前を型定義するだけで、フォームの数に関わらず状態管理と更新用関数を定義できます。
 初期値はまとめて渡すことができるようになります。
 加えて、reducer関数はsetStateと異なり純粋関数なので、テストがしやすくなります。
@@ -69,6 +69,37 @@ pagesルーターや素のReactなどでもフォルダの位置や、呼び出�
 ## 型定義
 
 ```typescript:types.ts
+/**型引数で指定したHTMLの属性 */
+export type Attributes<T> = T extends keyof JSX.IntrinsicElements
+  ? Omit<Partial<JSX.IntrinsicElements[T]>, "ref">
+  : never;
+
+/**入力欄自動生成用型定義 */
+export type InputField<
+  T extends { [key: string]: any },
+  A extends keyof JSX.IntrinsicElements = "input"
+> = {
+  key: keyof T;
+  title: string;
+  wrapperClassName?: string;
+  attributes?: Attributes<A>;
+  options?: A extends "select" ? string[] : never;
+};
+
+/**型引数で指定したkeyを持つフォームを自動生成するための型定義 */
+export type Form<T extends { [key: string]: any }> = {
+  category: string;
+  inputFields: InputField<T, keyof JSX.IntrinsicElements>[];
+};
+```
+
+フォーム自動生成用に書くオブジェクトの型定義です。
+InputFieldのattributesには、VSCodeの補完が働くようにしています。
+ジェネリクスでHTMLのタグ名を指定してあげれば、そのタグに対応したattributeを補完してくれます。
+
+## フォームの定義
+
+```tsx:formData.ts
 /**フォームの入力値保管用Key Value */
 export type FormValues = {
   email: string;
@@ -87,90 +118,13 @@ export type FormValues = {
   birthday: string;
   blood_type: string;
   gender: string;
-　twitter: string;
+  twitter: string;
   emergency_name: string;
   emergency_phone_number: string;
   emergency_relation: string;
 };
 
-/**フォーム自動生成用型定義 */
-export type InputField<T extends keyof JSX.IntrinsicElements> = {
-  key: keyof FormValues;
-  title:string;
-  wrapperClassName?: string;
-  attributes?: T extends keyof JSX.IntrinsicElements
-  ? Omit<
-  Partial<JSX.IntrinsicElements[T]>,
-  'ref'
->
-  : never;
-  options?: T extends 'select' ? string[]: never;
-} 
-
-/**複数のInputFieldをカテゴリ毎に一纏めにするための型定義 */
-export type Forms = {
-  category:string;
-  inputFields: InputField<keyof JSX.IntrinsicElements>[];
-}[]
-```
-
-1つ目の型は、フォームの入力値を保管するための変数用、2つ目と3つ目は、フォーム自動生成用に書くオブジェクトの型定義です。
-InputFieldのattributesには、VSCodeの補完が働くようにしています。
-ジェネリクスでHTMLのタグ名を指定してあげれば、そのタグに対応したattributeを補完してくれます。
-
-## フォームの定義
-
-```tsx:formData.ts
-export const forms: Forms = [
-  {
-    category: "ID登録",
-    inputFields: [
-      {
-        key: "email",
-        title: "メールアドレス",
-        attributes: {
-          placeholder: "mail@example.com",
-          type: "email",
-          pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$",
-          autoComplete: "email",
-        },
-      } as InputField<'input'>,
-      {
-        key: "password",
-        title: "パスワード",
-        attributes: {
-          placeholder: "********",
-          type: "password",
-          pattern: "^[a-zA-Z0-9]{8,}$",
-          autoComplete: "new-password",
-        },
-      } as InputField<'input'>,
-      {
-        key: "password_confirmation",
-        title: "パスワード(確認)",
-        attributes: {
-          placeholder: "********",
-          type: "password",
-          pattern: "^[a-zA-Z0-9]{8,}$",
-          autoComplete: "new-password",
-        },
-      } as InputField<'input'>,
-    ],
-  },...] //省略
-```
-
-こんな感じで、HTMLタグに設定する属性をオブジェクトで定義することができます。
-
-![フォームの補完](/images/react-multi-page-form/photo3.png =500x)
-
-## フォームのページ数を管理する
-
-ページを管理するための親コンポーネントを作成していきます。
-
-```tsx:RegisterForm.tsx
-'use client';
-
-export const initialState: FormValues = {
+export const initialValues: FormValues = {
   email: "",
   password: "",
   password_confirmation: "",
@@ -193,8 +147,58 @@ export const initialState: FormValues = {
   emergency_relation: "",
 };
 
+export const forms: Form<FormValues>[] = [
+  {
+    category: "ID登録",
+    inputFields: [
+      {
+        key: "email",
+        title: "メールアドレス",
+        attributes: {
+          placeholder: "mail@example.com",
+          type: "email",
+          pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$",
+          autoComplete: "email",
+        },
+      },
+      {
+        key: "password",
+        title: "パスワード",
+        attributes: {
+          placeholder: "********",
+          type: "password",
+          pattern: "^[a-zA-Z0-9]{8,}$",
+          autoComplete: "new-password",
+        },
+      },
+      {
+        key: "password_confirmation",
+        title: "パスワード(確認)",
+        attributes: {
+          placeholder: "********",
+          type: "password",
+          pattern: "^[a-zA-Z0-9]{8,}$",
+          autoComplete: "new-password",
+        },
+      },
+    ],
+  },...] //省略
+```
+
+こんな感じで、HTMLタグに設定する属性をオブジェクトで定義することができます。
+初期値はinputになっているので、それ以外のselectタグなどは型アサーションで指定することで補完が効くようになります。
+
+![フォームの補完](/images/react-multi-page-form/photo3.png =500x)
+
+## フォームのページ数を管理する
+
+ページを管理するための親コンポーネントを作成していきます。
+
+```tsx:RegisterForm.tsx
+'use client';
+
 export const RegisterForm = () => {
-  const [formValues, formPages] = useFormPages(forms,initialState);
+  const [formValues, formPages] = useFormPages(initialValues,forms);
   const router = useRouter();
   const searchParams = useSearchParams();
   const progress = Number(searchParams.get("progress")) || 0;
@@ -236,7 +240,7 @@ export const RegisterForm = () => {
 ```
 
 このコンポーネントの関心は、フォームのページ数を管理することと、ページの切り替えです。
-この記事の肝であるuseFormPagesというhookに実装を押し込むことによって、このコンポーネントはかなりシンプルになりました。
+この記事の肝であるuseFormPagesというカスタムフックに実装を押し込むことによって、このコンポーネントはかなりシンプルになりました。
 このフックに定義したフォームのオブジェクトを渡し、フォームの入力値と入力用ページの配列を受け取ることで、`CurrentPage`変数で現在のページを表示しています。
 `<CurrentPage />`としたいところですが、そのためにhookの戻り値を関数`() => JSX.Element[]`としてしまうと、useCallbackでも回避不能なアンマウントが発生し、文字を1文字入力するごとにフォーカスが外れてしまうため、変数として埋め込んでいます。
 
@@ -257,20 +261,25 @@ export const reducer = <T extends { [key: string]: any }>(
   state: T,
   action: { key: keyof T; value: any }
 ) => {
-  return { ...state, [action.key]: action.value };
+  return { ...state, [action.key]: action.value } as T;
 };
 
-export const useFormPages = (forms: Forms, initialValues:{ [key: string]: any }) => {
+export const useFormPages = <T extends { [key: string]: any }>(
+  initialValues: T,
+  forms: Form<T>[]
+) => {
   const [formValues, dispatch] = useReducer(reducer, initialValues);
 
   /**定義済みの値から自動生成した、入力フォームのJSX.Element型配列 */
-  const formPages = forms.map((form) => {
+  const formPages = forms.map((form,i) => {
     return (
-      <div className="grid grid-cols-2 items-end gap-8 px-8 py-2">
+      <div key={i} className="grid grid-cols-2 items-end gap-8 px-8 py-2">
         {form.inputFields.map((param) => {
+          const key = param.key as string;
+
           const handleChange = useCallback(
             (e: React.ChangeEvent<any>) => {
-              dispatch({ key: param.key, value: e.currentTarget.value });
+              dispatch({ key: key, value: e.currentTarget.value });
             },
             [dispatch]
           );
@@ -278,27 +287,29 @@ export const useFormPages = (forms: Forms, initialValues:{ [key: string]: any })
           if (param.options) {
             return (
               <Select
-                wrapperClassName={param.wrapperClassName || "col-span-2"}
-                labelText={param.title}
-                {...(param.attributes as ComponentProps<typeof Select>)}
-                id={param.key}
-                value={formValues[param.key]}
-                onChange={handleChange}>
-                {param.options.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </Select>
+                  key={key}
+                  {...(param.attributes as ComponentProps<typeof Select>)}
+                  id={param.key as string}
+                  wrapperClassName={param.wrapperClassName || "col-span-2"}
+                  labelText={param.title}
+                  value={formValues[key]}
+                  onChange={handleChange}>
+                  {param.options.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Select>
             );
           } else {
             return (
                 <Input
-                  wrapperClassName={param.wrapperClassName || "col-span-2"}
-                  labelText={param.title}    
+                  key={key}
                   {...(param.attributes as ComponentProps<typeof Input>)}
-                  id={param.key}              
-                  value={formValues[param.key]}
+                  id={param.key as string}
+                  wrapperClassName={param.wrapperClassName || "col-span-2"}
+                  labelText={param.title}
+                  value={formValues[key]}
                   onChange={handleChange}
                 />
             );
@@ -312,8 +323,12 @@ export const useFormPages = (forms: Forms, initialValues:{ [key: string]: any })
   const confirmPage = (
     <>
       {forms.map((form, index) => (
-        <div className="grid gap-8 px-8 py-2">
-          <ConfirmFormCard inputFields={form.inputFields} page={index} formValues={formValues} />
+        <div key={index} className="grid gap-8 px-8 py-2">
+          <ConfirmFormCard
+            formValues={formValues as T}
+            inputFields={form.inputFields}
+            page={index}
+          />
         </div>
       ))}
     </>
@@ -321,7 +336,7 @@ export const useFormPages = (forms: Forms, initialValues:{ [key: string]: any })
 
   const pages = [...formPages, confirmPage] as JSX.Element[];
 
-  return [formValues, pages] as const;
+  return [formValues as T, pages] as const;
 };
 ```
 
@@ -358,5 +373,6 @@ hookの戻り値はas constを使用することでタプルが使えるよう�
 より良い実装方法や、間違いを見つけましたら教えていただけると嬉しいです。
 お読みいただきありがとうございました。
 
-## 追記
+- 編集履歴
 
+10月11日　不自然な型周りのコードやmap関数のkeyを指定していなかった箇所を修正しました。
