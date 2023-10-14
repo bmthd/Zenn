@@ -1,8 +1,8 @@
 ---
-title: "【React】複数ページに分割し進捗を表示するフォームの設計"
+title: "【React】複数ページに分割し進捗を表示する入力フォームの設計"
 emoji: "⌨"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [react,typescript,nextjs,useReducer]
+topics: [react,typescript,nextjs,usereducer]
 published: true
 ---
 
