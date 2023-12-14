@@ -60,14 +60,14 @@ User型のオブジェクトは、JavaScriptの世界ではobject型であり、
 
 ```typescript:typeguard.tsx
 export const generateKeyGuard = <T extends string | number>(
-  obj: Record<T, any>,
+  obj: Record<T, string | number>,
 ) => {
-  const keys = Object.keys(obj) as unknown as T[];
-  return (arg: unknown): arg is T => keys.some((key) => key === arg);
+  const keySet = new Set(Object.keys(obj) as T[]);
+  return (arg: unknown): arg is T => keySet.has(arg as T);
 };
 ```
 
-`Object.keys()`の戻り値は受け取ったオブジェクトのKey配列なので`T[]`型で間違いないのですが、コンパイラは`string[]`と推論してしまうため、`unknown`型を経由して`T[]`型に変換しています。
+`Object.keys()`の戻り値は受け取ったオブジェクトのKey配列なので`T[]`型で間違いないのですが、コンパイラは`string[]`と推論してしまうため、`T[]`型に変換しています。
 
 ## 使い方
 
