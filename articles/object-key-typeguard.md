@@ -8,10 +8,10 @@ published: true
 
 ## はじめに
 
-TypeScriptでオブジェクトのKeyのいずれかであることを保証したい場合があります。
+TypeScriptでオブジェクトのプロパティにアクセスするために、そのKeyのいずれかであることを保証したい場合があります。
 この、ユーザー定義型ガードの作成に詰まってしまい時間を食ってしまったので、備忘録として残しておきます。
 
-## ユーザー型ガードとは
+## ユーザー定義型ガードとは
 
 型情報は、ユーザーがコードを書く際に定義した型情報を元に、コンパイラが推論しているものです。
 実行後に型情報は消えてしまうため、別の方法で型情報を保証する必要があります。
@@ -31,7 +31,6 @@ const isUser = (arg: unknown): arg is User => {
   return typeof arg === "object" && arg !== null && "name" in arg && "age" in arg;
 };
 ```
-
 
 戻り値の型がbooleanである関数の型注釈で`arg is User`のような書き方をすることで、コンパイラにこの関数がユーザー定義型ガードであることを伝えることができます。
 
@@ -68,7 +67,7 @@ export const generateKeyGuard = <T extends string | number>(
 };
 ```
 
-Object.keysの戻り値は受け取ったオブジェクトのKey配列なのでT[]で間違いないのですが、コンパイラは`string[]`と推論してしまうため、unknownを経由してT[]に変換しています。
+`Object.keys()`の戻り値は受け取ったオブジェクトのKey配列なので`T[]`型で間違いないのですが、コンパイラは`string[]`と推論してしまうため、`unknown`型を経由して`T[]`型に変換しています。
 
 ## 使い方
 
@@ -89,7 +88,7 @@ if (isKey(data)) {
 ```
 
 オブジェクトのプロパティにアクセスする際は、`obj["a"]`のように、Keyを文字列で指定する必要があります。
-そこにstring型の変数を渡すと、コンパイラはその変数がstring型であることしか知らないため、Keyとして使うことができず、エラーが出てしまいます。
+そこに`string`型の変数を渡すと、コンパイラはその変数が`string`型であることしか知らないため、Keyとして使うことができず、エラーが出てしまいます。
 このように使うことで、外部からのデータだとしてもKeyとして使うことができます。
 
 ## 終わりに
@@ -100,11 +99,10 @@ if (isKey(data)) {
 
 ## 参考
 
+以下の記事が理解の参考になるので、ぜひ読んでみてください。
+
+制御フロー分析と型ガードによる型の絞り込み
+https://typescriptbook.jp/reference/statements/control-flow-analysis-and-type-guard
+
 型ガード
 https://typescriptbook.jp/reference/functions/type-guard-functions
-
-instanceof
-https://typescriptbook.jp/reference/object-oriented/class/instanceof-operator
-
-typeof
-https://typescriptbook.jp/reference/values-types-variables/typeof-operator
