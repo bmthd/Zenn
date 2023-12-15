@@ -16,7 +16,7 @@ TypeScriptでオブジェクトのプロパティにアクセスするために�
 型情報は、ユーザーがコードを書く際に定義した型情報を元に、コンパイラが推論しているものです。
 実行後に型情報は消えてしまうため、別の方法で型情報を保証する必要があります。
 
-```typescript:example.tsx
+```typescript:example.ts
 type User = {
   name: string;
   age: number;
@@ -36,7 +36,7 @@ const isUser = (arg: unknown): arg is User => {
 
 このisUser関数をif文の条件式に使うことで、そのブロック内で変数がUser型であることをコンパイラに知らせることができ、型推論を行うことができるようになります。
 
-```typescript:example.tsx
+```typescript:example.ts
 if (isUser(user)) {
   console.log(user.name); // userはUser型であることが保証される
 }
@@ -45,7 +45,7 @@ if (isUser(user)) {
 あくまでコンパイラに知らせるだけであり、実装はユーザーに委ねられています。
 仮に以下のような実装だったとしても、コンパイラはエラーを出さずに通してしまいます。
 
-```typescript:example.tsx
+```typescript:example.ts
 const isUser = (arg: unknown): arg is User => {
   return true;
 };
@@ -58,7 +58,7 @@ User型のオブジェクトは、JavaScriptの世界ではobject型であり、
 
 オブジェクトのKeyであることを保証する型ガードを生成する汎用関数を作成してみました。
 
-```typescript:typeguard.tsx
+```typescript:typeguard.ts
 export const generateKeyGuard = <T extends string | number>(
   obj: Record<T, string | number>,
 ) => {
