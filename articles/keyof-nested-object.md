@@ -125,17 +125,17 @@ type Merge<T extends Record<string, unknown>, U extends Record<string, unknown>>
   [K in keyof T | keyof U]: K extends keyof U ? U[K] : K extends keyof T ? T[K] : never;
 };
 
-type KeyofNotNested<T extends APIObject> = {
+type KeyofNotNested<T extends Record<string, unknown>> = {
   [K in keyof T]: T[K] extends Array<infer U> ? (U extends APIValue ? never : never) : K;
 }[keyof T];
 
-type KeyofNested<T extends APIObject> = {
+type KeyofNested<T extends Record<string, unknown>> = {
   [K in keyof T]: T[K] extends Array<infer U> ? (U extends APIValue ? never : K) : never;
 }[keyof T];
 
-type PickNotNested<T extends APIObject> = Pick<T, KeyofNotNested<T>>;
+type PickNotNested<T extends Record<string, unknown>> = Pick<T, KeyofNotNested<T>>;
 
-type PickNested<T extends APIObject> = Pick<T, KeyofNested<T>>;
+type PickNested<T extends Record<string, unknown>> = Pick<T, KeyofNested<T>>;
 ```
 
 `Merge`は、型を通した後の交差型の可読性を良くするための型です。
