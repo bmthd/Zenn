@@ -68,7 +68,8 @@ useEffectは、その外の変数を参照するときに、その変数を依�
 useEffect内でしか使わない関数は、useEffect内に書くことで、依存配列に含める必要がなくなります。
 
 ```tsx:useEffect内でしか使わない関数
-const Component = () => {
+const Component = ({props}:Props) => {
+
     useEffect(() => {
         const handleClick = () => {
             console.log('clicked')
@@ -77,6 +78,7 @@ const Component = () => {
             console.log('unmounted')
         }
     }, [])
+
     return (
         <button onClick={handleClick} />
     )

@@ -1,10 +1,12 @@
 ---
-title: "【App Router】Server actionsが実行できる汎用モーダル作ってみた"
+title: "【App Router】Server Actionsが実行できる汎用モーダル作ってみた"
 emoji: "🤖"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [react,nextjs,approuter,serveractions]
 published: false
 ---
+
+
 
 ```typescript:
 import { useCallback, type ReactNode } from "react";
