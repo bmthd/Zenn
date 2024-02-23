@@ -142,7 +142,7 @@ type PickNested<T extends Record<string, unknown>> = Pick<T, KeyofNested<T>>;
 `{ foo: string }`と`{ bar: number }`をそのまま`&`で交差させても、`{ foo: string } & { bar: number }`となってしまい、`{ foo: string; bar: number }`とはならないため、それを解決します。
 
 `KeyofNotNested`と、`KeyofNested`は、それぞれ配列でネストしていないキーとネストしているキーを取得するための型です。
-TypeScript の型の中では、Object.entries()のようなオブジェクトに対する柔軟な処理が行えず、Mapped types (`[K in keyof T]: T[K]`)を使用しても一括で処理することしかできないため、別々に取得して処理を行います。
+TypeScript の型の中では、`Object.entries()`のようなオブジェクトに対する柔軟な処理が行えず、Mapped types (`[K in keyof T]: T[K]`)を使用しても一括で処理することしかできないため、別々に取得して処理を行います。
 
 使うとこんな感じ。
 
@@ -170,10 +170,10 @@ type FlattenObject<T extends APIObject, A extends APIObject = {}> =
 ```
 
 型の中で変数を宣言することはできないため、型引数の第二引数に空のオブジェクトを用意しておき、ネストしていくたびにそこに結果をマージしていくやり方を取りました。
-この実装は、配列操作に使用するreduce()関数のaccumulatorに似ていたため、型引数の名前は`A`としています。
+この実装は、配列操作に使用する`reduce()`関数のaccumulatorに似ていたため、型引数の名前は`A`としています。
 ネストするたびに6行目の処理が再帰的に行われ、最終的に`T`が`Record<string, APIValue>`になる、つまりネストしなくなるまで処理が続きます。
 ネストが終わると、第二引数に今までの結果が渡ってきているため、それと最後のオブジェクトを3行目でマージして最終結果を得ます。
-仕様上、inferやAPIObjectでの絞り込みが必要なため、Conditional Types(三項演算子)を使用していますが、neverになることはありません。
+仕様上、`infer`や`APIObject`での絞り込みが必要なため、Conditional Types(三項演算子)を使用していますが、`never`になることはありません。
 
 使うとこんな感じ。
 
@@ -196,7 +196,7 @@ type KeyofFlattenedResponse = keyof FlattenedResponse;
 // KeyofNotNested<Shop> | KeyofNotNested<Company> | keyof Item
 ```
 
-ここでFlattenedResponseのキー一覧のユニオン型でなく、`KeyofNotNested<Shop> | KeyofNotNested<Company> | keyof Item`が推論されるのは驚きました。
+ここで`FlattenedResponse`のキー一覧のユニオン型でなく、`KeyofNotNested<Shop> | KeyofNotNested<Company> | keyof Item`が推論されるのは驚きました。
 ただ、使用側が`KeyofNotNested`の実装を知っている必要があり、見に行く必要が出てきてしまうため、ユニオン型で取得する方法があればより良いと思いました。
 どなたかわかれば教えてください…。
 
