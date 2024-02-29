@@ -16,11 +16,11 @@ published: true
 ```ts
 const fetch<T> = ():Promise<Result<T>> => {}
 
-const fetchUsers = () => get<User[]>();
+const fetchUsers = () => fetch<User[]>();
 
-const fetchUser = (id: string) => get<User>(id);
+const fetchUser = (id: string) => fetch<User>(id);
 
-export const useFetch =<T extends typeof get> (fetcher:T) => {
+export const useFetch =<T extends typeof fetch> (fetcher:T) => {
 const [data,setData] = useState<T>(null);
 const [isLoading,setIsLoading] = useState(false);
 const [error,setError] = useState(false);
@@ -37,7 +37,7 @@ return {fetch ,data ,loading ,error}
 }
 ```
 
-`useFetch` は `get` を継承した任意の引数を持つデータ取得関数を受け取り、その関数のデータ取得結果を `useState` で状態管理するフックです。
+`useFetch` は `fetch` を継承した任意の引数を持つデータ取得関数を受け取り、その関数のデータ取得結果を `useState` で状態管理するフックです。
 典型的な、よくある状態管理フックの実装です。
 無数に存在するAPI取得関数全てに状態管理のロジックを書かなくてもフロント側で状態管理ができるようにするためのものです。
 このとき、渡される関数の引数は、無いものもあれば複数あるものもあります。
