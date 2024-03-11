@@ -22,11 +22,11 @@ const [isLoading,setIsLoading] = useState(false);
 const [error,setError] = useState<ErrorResponse | null>(null);
 
 const fetch = (arg:any) => {
-setIsloading(true)
-const result = fetcher(arg);
-if(result.isFailure) serError(result.error)
-setData(result.value)
-setIsloading(false)
+  setIsLoading(true)
+  const result = fetcher(arg);
+  if(result.isFailure) serError(result.error)
+  setData(result.value)
+  setIsLoading(false)
 }
 
 return {fetch ,data ,loading ,error}
@@ -38,11 +38,11 @@ const fetchUsers = (id: string) => fetch<User>(id);
 
 const route = useRoute()
 const { id } = route.params
-const {fetch ,data ,isLoading ,error} = useFetch(fetchUsers);
+const { fetch ,data ,isLoading ,error } = useFetch(fetchUsers);
 
 useEffect(async() => {
-await fetch(id)
-},[])
+  await fetch(id)
+},[id,fetch])
 ```
 
 `useFetch` は `fetch` を継承した任意の引数を持つデータ取得関数を受け取り、その関数のデータ取得結果を `useState` で状態管理するフックです。
@@ -80,7 +80,7 @@ export const useFetch = <T, U extends Fetcher<T>>(fetcher:U) => {
     setIsLoading(false)
   }
 
-  return {fetch ,data ,isLoading ,error}
+  return { fetch ,data ,isLoading ,error }
 }
 ```
 
