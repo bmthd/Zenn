@@ -167,7 +167,7 @@ if (isKey(key)) {
 
 いかがでしょうか？
 オブジェクトリテラルと、型ガード関数、ブラケット記法でのアクセスを活用することでこのようにシンプルに書くことができます。
-選択肢の分岐部分と、実行部分が分離されているため、それぞれを独立して記述することができています。
+選択肢の分岐の定義と、処理の実行部が分離されているため、それぞれを独立して記述することができています。
 選択肢を追加する担当者は、処理の詳細が共通であることが保証されているため、追加しやすくなります。
 処理内容を変更する場合は、わざわざ全ての選択肢に変更を加える必要がなくなるうえに、選択肢だけ追加して実装は漏れていた、ということも防げます。
 keyが取りうる値の型が予め決まっている場合は、特別なLintルールを設定しなくても実装漏れに対して型エラーが発生するのも嬉しいですね。
@@ -241,35 +241,25 @@ switch (key) {
     case "ArrowLeft":
     case "KeyA": {
         move(rowIndex, columnIndex - 1);
-        recordKey(key);
-        logger.debug(key);
         break;
     }
     case "ArrowRight":
     case "KeyD": {
         move(rowIndex, columnIndex + 1);
-        recordKey(key);
-        logger.debug(key);
         break;
     }
     case "ArrowUp":
     case "KeyW": {
         move(rowIndex - 1, columnIndex);
-        recordKey(key);
-        logger.debug(key);
         break;
     }
     case "ArrowDown":
     case "KeyS": {
         move(rowIndex + 1, columnIndex);
-        recordKey(key);
-        logger.debug(key);
         break;
     }
     case "Enter": {
         handleEnter();
-        recordKey(key);
-        logger.debug(key);
         break;
     }
     default:{
@@ -294,4 +284,3 @@ switch (key) {
 オブジェクトと型ガード関数を使うことで、選択肢を宣言的に記述し、保守性を向上させることができます。
 TypeScriptにおけるオブジェクトリテラルを使った実装例を示しましたが、JavaScriptはもちろん、他の言語でもMapやDictionaryを使って同様の実装が可能です。
 複雑な`switch`文のリファクタリングの際には、この方法を検討してみてください。
-
