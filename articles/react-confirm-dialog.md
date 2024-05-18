@@ -174,7 +174,7 @@ export const useConfirmState = () => {
 
 ```tsx:index.tsx
 import { Button, Dialog } from "@yamada-ui/react";
-import { useImperativeHandle, forwardRef, type FC, type ComponentProps } from "react";
+import { useImperativeHandle, forwardRef, type ComponentProps } from "react";
 import { useConfirmState } from "./hooks";
 
 export const ConfirmDialog = forwardRef<
@@ -193,7 +193,7 @@ export const ConfirmDialog = forwardRef<
           OK
         </Button>
       }
-      {...{ref, isOpen, ...props}}
+      {...{isOpen, ...props}}
     />
   );
 });
