@@ -296,7 +296,7 @@ export const DeleteButton: FC = () => {
 ```tsx:delete-button.tsx
 import { ConfirmDialog } from "@/ui/confirm";
 import { Button } from "@yamada-ui/react";
-import { type FC, useCallback, useRef } from "react";
+import { type FC, lazy, useCallback, useRef } from "react";
 
 export const DeleteButton: FC<{ id:string }> = ({ id }) => {
   const ref = useRef<{ confirm: () => Promise<boolean> }>(null);
