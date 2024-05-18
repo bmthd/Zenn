@@ -1,15 +1,15 @@
 ---
 title: "Reactでwindow.confirmのように使用できるリーダブルな確認ダイアログを作る"
-emoji: "🗨️"
+emoji: "🙆"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [react,typescript]
-published: true
+published: false
 ---
 
 ## はじめに
 
 ブラウザ標準の`window.confirm`を使ったことはありますか？
-![window.confirm](/images/react-confirm-dialog/window-confirm.png)
+![confirm](/images/confirm.png)
 最もシンプルな確認ダイアログを表示する方法です。
 戻り値がboolean型であり、OKボタンが押された場合はtrue、キャンセルボタンが押された場合はfalseを返します。
 
@@ -28,32 +28,30 @@ const handleClick = () => {
 UIフレームワークのDialog系コンポーネントでもこのAPIを実現できないでしょうか？
 
 ```tsx:delete-button.tsx
-import { ConfirmDialog } from "@/ui/confirm";
+import { useConfirm } from "@/ui/confirm";
 import { Button } from "@yamada-ui/react";
-import { type FC, useCallback, useRef } from "react";
+import { type FC, useCallback } from "react";
 
 export const DeleteButton: FC = () => {
-  const ref = useRef<{ confirm: () => Promise<boolean> }>(null);
+  const { Dialog, confirm } = useConfirm();
 
   const handleClick = useCallback(async () => {
-    const result = await ref.current?.confirm();
+    const result = await confirm();
     if (result) {
-      console.log("削除処理を実行");
+      // 削除処理
     }
-  }, []);
+  }, [confirm]);
 
   return (
     <>
       <Button onClick={handleClick}>削除</Button>
-      <ConfirmDialog ref={ref}>削除しますか？</ConfirmDialog>
+      <Dialog>本当に削除しますか？</Dialog>
     </>
   );
 };
 ```
 
-`Promise`と`useImperativeHandle`で、このようなAPIを実現できます！
-
-![Promise with useImperativeHandle](/images/react-confirm-dialog/dialog-confirm.png)
+`Promise`とRender Hooksで、このようなAPIを実現できます！
 
 :::details　一般的に使用されているダイアログの使い方
 
@@ -87,6 +85,7 @@ export const DeleteButton: FC = () => {
     </>
   );
 };
+
 ```
 
 コンポーネント名はボタンなのに、`useDisclosure`で謎の開閉状態が露呈していますね。
@@ -98,7 +97,8 @@ export const DeleteButton: FC = () => {
 
 :::
 いかがでしょうか。
-コンポーネントは、`confirm`関数のみを親コンポーネントに公開し、ダイアログの状態管理は内部で行うようにしました。
+ダイアログの状態管理をする必要性のため、カスタムフックとし、内部に状態を隠蔽。
+更に文字列だけでなく、内部に好きなコンポーネントを配置できるよう、コンポーネントを返すRender Hooksパターンを採用。
 `window.confirm`のように、削除ボタンが押されたときに期待する処理と、ダイアログ内に表示したい内容に集中することができるようになりました。
 
 ## 実装
@@ -148,9 +148,9 @@ export const useConfirmState = () => {
     handleCancel,
   };
 };
+
 ```
 
-ダイアログコンポーネント内で使用する状態を管理するカスタムフックです。
 このHooksの処理の流れをイメージしてみましょう。
 
 0. コンポーネントのマウントと共に、初期状態を設定。
@@ -171,48 +171,47 @@ export const useConfirmState = () => {
 [Yamada UI](https://yamada-ui.com/ja)の`Dialog`を使用して説明していますが、他のダイアログ系のコンポーネントでも同様の実装が可能です。
 :::
 
-```tsx:index.tsx
-import { Button, Dialog } from "@yamada-ui/react";
-import { useImperativeHandle, forwardRef, type FC, type ComponentProps } from "react";
+```ts:index.tsx
+import { Button, Dialog as Component } from "@yamada-ui/react";
+import { useCallback, useMemo, type FC, type ComponentProps } from "react";
 import { useConfirmState } from "./hooks";
 
-export const ConfirmDialog = forwardRef<
-  { confirm: () => Promise<boolean> },　// 親コンポーネントに公開するメソッドの型
-  Omit<ComponentProps<typeof Dialog>, "isOpen" | "onClose" | "cancel" | "success"> // 親コンポーネントに渡してもらいたいPropsの型
->((props, ref) => {
-  const { isOpen, confirm, handleSuccess, handleCancel } = useConfirmState();
-  useImperativeHandle(ref, () => ({ confirm }), [confirm]);
+export const useConfirm = () => {
+  const { isOpen, confirm, handleOk, handleCancel } = useConfirmState();
 
-  return (
-    <Dialog
-      onClose={handleCancel}
-      cancel={<Button onClick={handleCancel}>キャンセル</Button>}
-      success={
-        <Button bg={"blue.500"} onClick={handleSuccess}>
-          OK
-        </Button>
-      }
-      {...{ref, isOpen, ...props}}
-    />
+  const Dialog: FC<Omit<ComponentProps<typeof Component>, "isOpen" | "onClose">> = useCallback(
+    (props) => (
+      <Component
+        isOpen={isOpen}
+        onClose={handleCancel}
+        cancel={<Button onClick={handleCancel}>キャンセル</Button>}
+        success={
+          <Button bg={"blue.500"} onClick={handleSuccess}>
+            OK
+          </Button>
+        }
+        {...props}
+      />
+    ),
+    [isOpen, handleCancel, handleSuccess],
   );
-});
+  return {
+    /** ダイアログコンポーネント */
+    Dialog,
+    /** 確認ダイアログの操作を待機する関数 */
+    confirm,
+  };
+};
+
 ```
 
-複雑な状態管理を隠蔽したため、コンポーネントへの状態の組付けが簡単になりました。
-`ref`を親に渡してもらうために、`forwardRef`を使っています。
-`forwardRef`の型定義は複雑ですが、上記のように、第一型引数が公開するメソッドの型、第二型引数が親コンポーネントに渡してもらいたいPropsの型となります。
-そして`useImperativeHandle`を使うことで、useRef経由で親コンポーネントが子コンポーネントのメソッドを呼び出すことができるようになります。
-よく、DOMコンポーネントのメソッドを呼ぶ方法として`useRef`を使うことがありますが、カスタムコンポーネントでもメソッドを公開できるんですね。
-`useImperativeHandle`の第一引数には親から渡された`ref`、第二引数には公開するメソッドを入れたオブジェクトを返す関数、第三引数には`useEffect`やメモ系hooksでお馴染みの依存する値を渡します。
-React19では`forwardRef`を使わずに`ref`を直接渡すことができるようになるので、より使いやすくなるでしょう。
+複雑な状態管理を隠蔽したため、コンポーネントへの組付けが簡単になりました。
 
 ## 発展
 
 ### Render Hooksパターンの問題点
 
-この記事を書くにあたって参考にさせていただいた記事があり、それらの記事ではRender Hooksパターンを使うことを提示していました。
-最後にあげていますので、興味がある方は参考にしてみてください。
-ですが、Render Hooksパターンでは、ダイアログ非表示時に不要なコンポーネントアンマウントが発生してしまう問題があります。
+Render Hooksパターンでは、ダイアログ非表示時に不要なコンポーネントアンマウントが発生してしまう問題があります。
 状態が変更された際に即座にコンポーネントがアンマウントされるため、アニメーションが付いている場合、再生を待たずにダイアログが閉じてしまいます。
 
 https://www.asobou.co.jp/blog/web/reactfc-renderhooks
@@ -222,48 +221,86 @@ https://www.asobou.co.jp/blog/web/reactfc-renderhooks
 
 そこで、`useImperativeHandle`を使う方法を考えました。
 Render Hooksパターンでは無くなってしまいますが、よりReactらしい方法で解決できます。
-宣言的に使用できないのは残念ですが、アニメーションが消えてしまうのは致命的な問題です。
-この記事を書き始めた当初はRender Hooksパターンでの実装を考えていましたが、実装する中でこの問題に気づき書き直しました。
-一応元記事のようにRender Hooksパターンでの実装を下記に示しておきます。
+閉じるアニメーションが付いている場合はこちらを使うと良いでしょう。
 
-:::details　Render Hooksパターンでの実装
 ```tsx:index.tsx
-import { Button, Dialog as Component } from "@yamada-ui/react";
-import { useCallback, useMemo, type FC, type ComponentProps } from "react";
+import { Button, Dialog } from "@yamada-ui/react";
+import { useCallback, useImperativeHandle, forwardRef, type FC, type ComponentProps } from "react";
 import { useConfirmState } from "./hooks";
 
-export const useConfirm = () => {
-  const { isOpen, confirm, handleOk, handleCancel } = useConfirmState();
+export const ConfirmDialog = forwardRef<
+  { confirm: () => Promise<boolean> },
+  Omit<ComponentProps<typeof Dialog>, "isOpen">
+>((props, ref) => {
+  const { isOpen, confirm, handleSuccess, handleCancel } = useConfirmState();
+  useImperativeHandle(
+    ref,
+    () => ({
+      confirm,
+    }),
+    [confirm],
+  );
 
-  const Dialog: FC<Omit<ComponentProps<typeof Component>, "isOpen" | "onClose" | "cancel" | "success">> = 
-    useCallback(
-      (props) => (
-        <Component
-          onClose={handleCancel}
-          cancel={<Button onClick={handleCancel}>キャンセル</Button>}
-          success={
-            <Button bg={"blue.500"} onClick={handleSuccess}>
-              OK
-            </Button>
-          }
-          {...{isOpen, ...props}}
-        />
-      ),
-      [isOpen, handleCancel, handleSuccess],
-    );
-  return {
-    Dialog,
-    confirm,
-  };
-};
+  return (
+    <Dialog
+      ref={ref}
+      isOpen={isOpen}
+      onClose={handleCancel}
+      cancel={<Button onClick={handleCancel}>キャンセル</Button>}
+      success={
+        <Button bg={"blue.500"} onClick={handleSuccess}>
+          OK
+        </Button>
+      }
+      {...props}
+    />
+  );
+});
+
 ```
 
 ```tsx:delete-button.tsx
-import { useConfirm } from "@/ui/confirm";
+import { ConfirmDialog } from "@/ui/confirm";
 import { Button } from "@yamada-ui/react";
-import { type FC, useCallback } from "react";
+import { type FC, useCallback, useRef } from "react";
 
 export const DeleteButton: FC = () => {
+  const ref = useRef<{ confirm: () => Promise<boolean> }>(null);
+
+  const handleClick = useCallback(async () => {
+    if (await ref.current?.confirm()) {
+      console.log("削除処理を実行");
+    }
+  }, []);
+
+  return (
+    <>
+      <Button onClick={handleClick}>削除</Button>
+      <ConfirmDialog ref={ref}>削除しますか？</ConfirmDialog>
+    </>
+  );
+};
+
+```
+
+`useImperativeHandle`を使うことで、useRef経由で親コンポーネントが子コンポーネントのメソッドを呼び出すことができるようになります。
+よく、DOMコンポーネントのメソッドを呼ぶ方法として`useRef`を使うことがありますが、カスタムコンポーネントでもメソッドを公開できるんですね。
+`confirm`関数は、`ref.current?.confirm()`で呼び出すことができます。
+React19では`forwardRef`しなくても、`ref`を直接渡すことができるようになるので、より使いやすくなりこの方法が流行るかもしれません。
+
+<!-- ### HTMLのdialog要素を使った実装 -->
+### ダイアログ非表示時に不要な再レンダリングを発生させない方法
+
+ダイアログの中身にContextを使うと、ダイアログが非表示のときにも再レンダリングが発生してしまいます。
+これを防ぐには、中に表示される内容をコンポーネントに分離し、動的インポートすると良いです。
+
+```tsx:delete-button.tsx
+
+import { useConfirm } from "@/ui/confirm";
+import { Button } from "@yamada-ui/react";
+import { type FC, lazy, useCallback } from "react";
+
+export const DeleteButton: FC<{ id:string }> = ({ id }) => {
   const { Dialog, confirm } = useConfirm();
 
   const handleClick = useCallback(async () => {
@@ -273,47 +310,14 @@ export const DeleteButton: FC = () => {
     }
   }, [confirm]);
 
-  return (
-    <>
-      <Button onClick={handleClick}>削除</Button>
-      <Dialog>本当に削除しますか？</Dialog>
-    </>
-  );
-};
-```
-
-アニメーションが無い場合はRender Hooksパターンで実装しても正常に動作しますが、コンポーネントライブラリでアニメーションが付いていないことは基本的には無いと思われます。
-また、不必要にコンポーネントのアンマウントが発生することはパフォーマンス上好ましくありません。
-:::
-
-<!-- ### HTMLのdialog要素を使った実装 -->
-### ダイアログ非表示時に不要な再レンダリングを発生させない方法
-
-ダイアログの中身にContextを使うと、ダイアログが非表示のときにも再レンダリングが発生してしまいます。
-これを防ぐには、中に表示される内容をコンポーネントに分離し、動的インポートすると良いです。
-
-```tsx:delete-button.tsx
-import { ConfirmDialog } from "@/ui/confirm";
-import { Button } from "@yamada-ui/react";
-import { type FC, useCallback, useRef } from "react";
-
-export const DeleteButton: FC<{ id:string }> = ({ id }) => {
-  const ref = useRef<{ confirm: () => Promise<boolean> }>(null);
-
-  const handleClick = useCallback(async () => {
-    if (await ref.current?.confirm()) {
-      console.log("削除処理を実行");
-    }
-  }, []);
-
   const ItemInformation = lazy(() => import("@/components/ItemInformation"));
 
   return (
     <>
       <Button onClick={handleClick}>削除</Button>
-      <ConfirmDialog ref={ref}>
+      <Dialog>
         <ItemInformation id={id} />
-      </ConfirmDialog>
+      </Dialog>
     </>
   );
 };
@@ -331,7 +335,7 @@ Render Hooksパターンを推す記事として書こうと思っていたの�
 
 https://medium.com/@kch062522/useconfirm-a-custom-react-hook-to-prompt-confirmation-before-action-f4cb746ebd4e
 
-- 丁寧な解説記事
+- Promiseを使ったこのパターンの丁寧な解説記事
 
 https://qiita.com/Yametaro/items/b6e035fe06530a9f47bc
 
