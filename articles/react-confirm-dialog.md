@@ -2,7 +2,7 @@
 title: "Reactでwindow.confirmのように使用できるリーダブルな確認ダイアログを作る"
 emoji: "🗨️"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [react,typescript]
+topics: [react,typescript,yamadaui]
 published: true
 ---
 
@@ -168,7 +168,8 @@ export const useConfirmState = () => {
 ### コンポーネントライブラリへの組付け
 
 :::message
-[Yamada UI](https://yamada-ui.com/ja)の`Dialog`を使用して説明していますが、他のダイアログ系のコンポーネントでも同様の実装が可能です。
+[Yamada UI](https://yamada-ui.com/ja)の`Dialog`を使用して説明していますが、もちろん他のダイアログ系のコンポーネントでも同様の実装が可能です。
+ドキュメントとコンポーネントが充実したおすすめのUIライブラリです！
 :::
 
 ```tsx:index.tsx
