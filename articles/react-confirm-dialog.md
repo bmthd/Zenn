@@ -179,17 +179,18 @@ sequenceDiagram
     participant H as フック
     participant C as コンポーネント
     H->>H: 初期状態を設定 (isOpen=false, resolve=空関数)
+    Note left of C: ダイアログを開くボタンが押された
     C->>H: confirm() を呼び出す
     H->>H: isOpenをtrueに変更<br>resolveを設定
     H-->>C: 新しい Promise を返す
     C->>+C: await confirmで待機
+    Note left of C: OKボタンが押された
     C->>H: handleSuccess() を呼ぶ
-    Note right of H: OKボタンが押された
     H->>H: resolve(true) を実行
     H-->>C: await confirmの待機が解除される (true)
     H->>H: 初期状態に戻す
+    Note left of C: キャンセルボタンが押された  
     C->>H: handleCancel() を呼ぶ
-    Note right of H: キャンセルボタンが押された  
     H->>H: resolve(false) を実行
     H-->>C: await confirmの待機が解除される (false)  
     H->>H: 初期状態に戻す
