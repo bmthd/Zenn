@@ -14,15 +14,17 @@ published: true
 戻り値がboolean型であり、OKボタンが押された場合はtrue、キャンセルボタンが押された場合はfalseを返します。
 カスタムフックで表現するとこんな感じ。
 
-```ts:use-confirm.ts
-const useConfirm = (message: string, onConfirm:() => void) => useCallback(() => {
-  const result = window.confirm(message);
-  if (result) {
-    onConfirm();
-  };
-},[message, onConfirm])
+```ts:**/components/delete-button.tsx
+const useConfirm = (message: string, onConfirm: () => void) =>
+  useCallback(() => {
+    const result = window.confirm(message);
+    if (result) onConfirm();
+  }, [message, onConfirm]);
 
-const handleClick = useConfirm("削除しますか？", () => console.log("削除処理を実行"));
+export const DeleteButton = () => {
+  const handleClick = useConfirm("削除しますか？", () => console.log("削除処理を実行"));
+  return <button onClick={confirm}>削除</button>;
+};
 ```
 
 このAPIが優れているのは、ダイアログの見た目や開閉状態の管理を内部でやってくれているため、はいが選ばれたときに何をしたいのか、どんなメッセージを表示させるのかのみに集中できる点です。
@@ -30,7 +32,7 @@ const handleClick = useConfirm("削除しますか？", () => console.log("削�
 このように、実装者がダイアログの見た目や挙動を気にすることなく、簡単に使えるAPIを作ることができれば、開発効率が向上します。
 UIフレームワークのDialog系コンポーネントでもこのAPIを実現できないでしょうか？
 
-```tsx:delete-button.tsx
+```tsx:**/components/delete-button.tsx
 import { ConfirmDialog } from "@/ui/confirm";
 import { Button } from "@yamada-ui/react";
 import { type ElementRef, type FC, useCallback, useRef } from "react";
@@ -60,7 +62,7 @@ export const DeleteButton: FC = () => {
 
 :::details　一般的に使用されているダイアログの使い方
 
-```tsx
+```tsx:**/components/delete-button.tsx
 import { Button, Dialog, useDisclosure } from "@yamada-ui/react";
 import { type FC, useCallback } from "react";
 
@@ -68,7 +70,7 @@ export const DeleteButton: FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const handleSuccess = useCallback(() => {
-    // 削除処理
+    console.log("削除処理を実行");
     onClose();
   }, [onClose]);
 
@@ -121,7 +123,7 @@ graph TD
 
 ### 状態管理
 
-```ts:hooks.ts
+```ts:ui/confirm/hooks.ts
 import { useCallback, useState } from "react";
 
 /** 状態の型定義 */
@@ -223,7 +225,7 @@ graph TD
 ドキュメントとコンポーネントが充実したおすすめのUIライブラリです！
 :::
 
-```tsx:index.tsx
+```tsx:ui/confirm/index.tsx
 import { Button, Dialog } from "@yamada-ui/react";
 import { useImperativeHandle, forwardRef, type ComponentProps } from "react";
 import { useConfirmState } from "./hooks";
@@ -281,7 +283,7 @@ https://www.asobou.co.jp/blog/web/reactfc-renderhooks
 
 :::details　Render Hooksパターンでの実装
 
-```tsx:index.tsx
+```tsx:ui/confirm/index.tsx
 import { Button, Dialog as Component } from "@yamada-ui/react";
 import { useCallback, useMemo, type FC, type ComponentProps } from "react";
 import { useConfirmState } from "./hooks";
@@ -314,7 +316,7 @@ export const useConfirm = () => {
 };
 ```
 
-```tsx:delete-button.tsx
+```tsx:**/components/delete-button.tsx
 import { useConfirm } from "@/ui/confirm";
 import { Button } from "@yamada-ui/react";
 import { type FC, useCallback } from "react";
@@ -325,7 +327,7 @@ export const DeleteButton: FC = () => {
   const handleClick = useCallback(async () => {
     const result = await confirm();
     if (result) {
-      // 削除処理
+      console.log("削除処理を実行");
     }
   }, [confirm]);
 
