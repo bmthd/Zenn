@@ -33,10 +33,10 @@ UIフレームワークのDialog系コンポーネントでもこのAPIを実現
 ```tsx:delete-button.tsx
 import { ConfirmDialog } from "@/ui/confirm";
 import { Button } from "@yamada-ui/react";
-import { type FC, useCallback, useRef } from "react";
+import { type ElementRef, type FC, useCallback, useRef } from "react";
 
 export const DeleteButton: FC = () => {
-  const ref = useRef<{ confirm: () => Promise<boolean> }>(null);
+  const ref = useRef<ElementRef<typeof ConfirmDialog>>(null);
 
   const handleClick = useCallback(async () => {
     const result = await ref.current?.confirm();
@@ -352,10 +352,10 @@ export const DeleteButton: FC = () => {
 ```tsx:delete-button.tsx
 import { ConfirmDialog } from "@/ui/confirm";
 import { Button } from "@yamada-ui/react";
-import { type FC, lazy, useCallback, useRef } from "react";
+import { type ElementRef, type FC, lazy, useCallback, useRef } from "react";
 
 export const DeleteButton: FC = () => {
-  const ref = useRef<{ confirm: () => Promise<boolean> }>(null);
+  const ref = useRef<ElementRef<typeof ConfirmDialog>>(null);
 
   const handleClick = useCallback(async () => {
     if (await ref.current?.confirm()) {
