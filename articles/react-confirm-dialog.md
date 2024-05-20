@@ -15,12 +15,12 @@ published: true
 カスタムフックで表現するとこんな感じ。
 
 ```ts:use-confirm.ts
-const useConfirm = (message: string, onConfirm:() => void) => () => {
+const useConfirm = (message: string, onConfirm:() => void) => useCallback(() => {
   const result = window.confirm(message);
   if (result) {
     onConfirm();
   };
-}
+},[message, onConfirm])
 
 const handleClick = useConfirm("削除しますか？", () => console.log("削除処理を実行"));
 ```
