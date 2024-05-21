@@ -21,7 +21,7 @@ const useConfirm = (message: string, onConfirm: () => void) =>
     if (result) onConfirm();
   }, [message, onConfirm]);
 
-export const DeleteButton = () => {
+export const DeleteButton: FC = () => {
   const handleClick = useConfirm("削除しますか？", () => console.log("削除処理を実行"));
   return <button onClick={confirm}>削除</button>;
 };
