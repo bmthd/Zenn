@@ -82,5 +82,28 @@ const ref = useRef<{ showModal:() => void }>(null);
 
 ### 定義・公開側コンポーネント
 
+公開側コンポーネントはReactのバージョンによってrefの型が異なります。
+
+#### React18以前
+
+```tsx
+const Child = forwardRef<Handle, Props>(({ children },ref) => {
+  return ()
+ }
+);
+
+```
+
+18以前はfowardRefを使用しないとrefという名前のPropを使用できません。
+fowardRefは、親コンポーネントに渡されたrefを子コンポーネント側でrefに受け渡し可能な状態に変換してくれる関数です。
+コンポーネントは第二引数でrefを受け取ることができるので、それをDOMやuseImperativeHandleに渡せるようになります。
+
+#### React19以降
+
+React19以降で、refはもはやPropsです。
+forwardRefの第一型引数に指定していたHandleをrefの型としてそのまま指定してしまえば良いです。
+
+
+
 
 
