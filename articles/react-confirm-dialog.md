@@ -1,5 +1,5 @@
 ---
-title: "Reactでwindow.confirmのように使用できるリーダブルな確認ダイアログを作る"
+title: "【React】window.confirmのように使用できるリーダブルな確認ダイアログを作る"
 emoji: "🗨️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [react,typescript,yamadaui]
