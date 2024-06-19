@@ -15,28 +15,31 @@ https://qiita.com/chelproc/items/de83a6f2959490109b49
 こちらの記事内のReact-hook-formのregisterを模した方法がとてもしっくり来たので参考にさせていただきました。
 
 :::message
-動的な行,列数は状態管理ライブラリRecoilで現在の行,列数を取得することで実現しています。
+動的な行,列数の増減は状態管理ライブラリRecoilで現在の行,列数を取得することで実現しています。
 :::
 
 ```typescript:useFocusControl.ts
 import { campaignsSelector } from '@/states/atom';
 import { itemRowsSelector } from '@/states/selector';
-import { useRef } from 'react';
+import { useCallback, useRef, type KeyboardEventHandler, type RefCallback } from "react";
 import { useRecoilValue } from 'recoil';
 
-type FocusControlResult = {
-  onKeyDown: (event: KeyboardEvent) => void;
-  ref: (element: HTMLInputElement) => void;
+type FocusElementController = {
+  ref: RefCallback<HTMLElement>;
+  onKeyDown: KeyboardEventHandler;
 };
 
-export const useFocusControl = () => {
-  const ref = useRef<Record<string, HTMLInputElement>>({});
+export const useFocusControl = (): ((
+  rowIndex: number,
+  columnIndex: number,
+) => FocusElementController) => {
+  const ref = useRef<Record<string, HTMLElement>>({});
   const campaigns = useRecoilValue(campaignsSelector);
-  const columns = campaigns.length + 3; //現在の列の数を割り当てる
   const itemRows = useRecoilValue(itemRowsSelector);
+  const columns = campaigns.length + 3; //現在の列の数を割り当てる
   const rows = itemRows.length; //現在の行の数を割り当てる
 
-  return (rowIndex: number, columnIndex: number): FocusControlResult => {
+  return (rowIndex, columnIndex) => {
     const key = `${rowIndex}-${columnIndex}`;
     ref.current[key] = ref.current[key] || null;
 
@@ -44,7 +47,7 @@ export const useFocusControl = () => {
      * Key押下時の処理を決める関数
      * @param event
      */
-    const handleKeyDown = (event: React.KeyboardEvent) => {
+    const handleKeyDown: KeyboardEventHandler = (event) => {
       const isEnterKey = event.key === 'Enter';
       const isShiftKeyPressed = event.shiftKey;
       const isArrowKeyPressed = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(
@@ -72,8 +75,13 @@ export const useFocusControl = () => {
      * refとHTMLInputElementを紐付ける関数
      * @param element
      */
-    const setRef = (element: HTMLInputElement) => {
-      ref.current[key] = element;
+    const setRef: RefCallback<HTMLElement> = (node) => {
+      if (!node) return;
+      ref.current[cellIndex] = node;
+    };
+
+    const focusInput = (rowIndex: number, columnIndex: number) => {
+        ref.current[`${rowIndex}-${columnIndex}`]?.focus();
     };
 
     // 以下、フォーカスを移動させる関数
@@ -119,8 +127,6 @@ export const useFocusControl = () => {
         case 'ArrowDown':
           move(rowIndex + 1, columnIndex);
           break;
-        default:
-          break;
       }
     };
 
@@ -132,12 +138,6 @@ export const useFocusControl = () => {
       const lastRowIndex = rows - 1;
       const lastColumnIndex = columns - 1;
       focusInput(lastRowIndex, lastColumnIndex);
-    };
-
-    const focusInput = (rowIndex: number, columnIndex: number) => {
-      const key = `${rowIndex}-${columnIndex}`;
-      const input = ref.current[key];
-      if (input) input.focus();
     };
 
     return {
@@ -174,23 +174,16 @@ export const TableBody = () => {
 親コンポーネント側でhookの使用を宣言し、行の配列をmapすると同時にregisterオブジェクトを渡してあげ…
 
 ```typescript:TableRow.tsx
-import { ItemRow } from '@/types/Types';
+import { ItemRow } from '@/types';
 import { useItemRow } from '@/hooks/useItemRow';
+import { type useFocusControl } from "@/app/_home/table/body/hooks";
 
-//registerの型定義を行う
-interface Props {
+type Props = {
  itemRow: ItemRow & { id: number };
- register: (
-  rowIndex: number,
-  columnIndex: number,
- ) => {
-  onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
-  ref: (element: HTMLInputElement) => void;
- };
+ register: ReturnType<typeof useFocusControl>;
 }
 
-export function TableRow(props: Props) {
- const { itemRow, register } = props;
+export const TableRow: FC<Props> = ({ itemRow, register }) => {
  const { updateItemRow } = useItemRow();
 
  return (
@@ -222,9 +215,10 @@ export function TableRow(props: Props) {
 
 ```
 
-行コンポーネントのinputタグ内で、関数の受け渡しを行います。
-スプレッド構文を使いonKeyDown関数とref関数を渡しつつ、引数に行と列を受け取ります。
-これで今どこの要素にいて何行目何列なのかをuseFocusControlに伝えつつinputタグのonKeyDown,refで指定した関数を受け取ることができます。
+useFocusControlを使用したコンポーネントに、useRefでその子コンポーネント達の参照が保持されます。
+子コンポーネント側は、親から渡してもらったregister関数を使ってref callback関数経由で親のrefに自身の参照を登録します。
+register関数にはイベントハンドラも含まれており、自分自身がどの行、列にいるかをもとに次のフォーカス先を決定し、refから探してフォーカスを移動させます。
+
 下記リンク先に幅1024px以上の端末でアクセスすると表形式フォームを体験できます。
 
 https://point-sprint.bmth.dev/
