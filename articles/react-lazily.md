@@ -47,7 +47,6 @@ const SomeComponent = lazy(() => import("./foo/bar").then((module) => ({ default
 やっていることは、importしたモジュールの中から希望のexportを選択してそれをdefault exportに変換しているだけです。
 ただしこれを毎回書くのは面倒です。
 
-
 ## Utility関数を作成して再利用する方法
 
 https://qiita.com/KokiSakano/items/b6d4e6875443064032b4
@@ -95,6 +94,14 @@ const { } = lazily(() => import("@/ui/form/elements"))
 このように複数のコンポーネントを単一のインポートで型補完を効かせながら遅延インポートすることができます。
 型定義がLazyExoticComponentにならないところも気に入っています。
 記載したJSDocコメントが失われないため、Propsの指定の際も記載したコメントが残ります。
+
+同一のモジュールからインポートした複数のコンポーネントを別のSuspense境界で使用する場合、両方がSuspendされる点は注意が必要です。
+同一のSuspense内であれば問題ありません。
+以下検証用リポジトリです。
+
+https://github.com/bmthd/lazy-import
+
+
 実装を見に行ったところProxyと、asによる型キャストで実装されていました。
 
 https://github.com/JLarky/react-lazily/blob/main/src/core/lazily.ts
@@ -105,5 +112,5 @@ https://github.com/JLarky/react-lazily/blob/main/src/core/lazily.ts
 
 ## まとめ
 
-React.lazyを使用する際にnamed exportを綺麗にimportする方法を紹介しました。
-react-lazilyは軽量で使いやすいので、named exportを使用する際にはぜひ使用してみてください。
+React.lazyを使用する際にnamed exportを綺麗にlazy importする方法を紹介しました。
+react-lazilyは軽量で使いやすいので、lazy importを使用する際にはぜひ使用してみてください。
