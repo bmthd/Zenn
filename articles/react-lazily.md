@@ -95,10 +95,13 @@ const { } = lazily(() => import("@/ui/form/elements"))
 型定義がLazyExoticComponentにならないところも気に入っています。
 記載したJSDocコメントが失われないため、Propsの指定の際も記載したコメントが残ります。
 
-同一のモジュールからインポートした複数のコンポーネントを別のSuspense境界で使用する場合、両方がSuspendされる点は注意が必要です。
+考えてみれば当然のことではありますが、同一のモジュールからインポートした複数のコンポーネントを別のSuspense境界で使用する場合、両方がSuspendされる点は注意が必要です。
 同一のSuspense内であれば問題ありません。
-以下雑に検証したリポジトリです。
-<https://github.com/bmthd/lazy-import>
+以下のリポジトリで念の為雑に検証しました。
+ネットワークタブを見ると、両方のコンポーネントが含まれるソースが同時に読み込まれていることが確認できます。
+また、片方のコンポーネントが読み込まれると両方がSuspendされています。
+<https://bmthd.github.io/lazy-import/>
+[ソースコード](<https://github.com/bmthd/lazy-import>)
 
 
 実装を見に行ったところProxyと、asによる型キャストで実装されていました。
