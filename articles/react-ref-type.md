@@ -94,8 +94,8 @@ const Child = forwardRef<Handle, Props>(({ children },ref) => {
 
 ```
 
-18以前はfowardRefを使用しないとrefという名前のPropを使用できません。
-fowardRefは、親コンポーネントに渡されたrefを子コンポーネント側でrefに受け渡し可能な状態に変換してくれる関数です。
+18以前はforwardRefを使用しないとrefという名前のPropを使用できません。
+forwardRefは、親コンポーネントに渡されたrefを子コンポーネント側でrefに受け渡し可能な状態に変換してくれる関数です。
 コンポーネントは第二引数でrefを受け取ることができるので、それをDOMやuseImperativeHandleに渡せるようになります。
 
 #### React19以降
