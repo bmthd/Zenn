@@ -97,9 +97,8 @@ const { } = lazily(() => import("@/ui/form/elements"))
 
 同一のモジュールからインポートした複数のコンポーネントを別のSuspense境界で使用する場合、両方がSuspendされる点は注意が必要です。
 同一のSuspense内であれば問題ありません。
-以下検証用リポジトリです。
-
-https://github.com/bmthd/lazy-import
+以下雑に検証したリポジトリです。
+<https://github.com/bmthd/lazy-import>
 
 
 実装を見に行ったところProxyと、asによる型キャストで実装されていました。
@@ -108,7 +107,7 @@ https://github.com/JLarky/react-lazily/blob/main/src/core/lazily.ts
 
 これは思いつかないですね…！
 
-私は使用していませんが、サーバーフレームワークのSSR向けの@loadable/componentというライブラリがあるようで、これとの併用可能なAPIもあるようです。
+私は使用していませんが、サーバーフレームワークのSSR向けに@loadable/componentというライブラリがあるようで、これとの併用可能なAPIもあるようです。
 
 ## まとめ
 
