@@ -90,7 +90,7 @@ const { } = lazily(() => import("@/ui/form/elements"))
 
 通常の`React.lazy`と同様の使用感で、named exportされたコンポーネントをそのまま使用することができます。
 
-![複数のコンポーネントを単一のインポートで型補完を効かせながらインポートする図](/images//react-lazily/multi-components.png)
+![複数のコンポーネントを単一のインポートで型補完を効かせながらインポートする図](/images/react-lazily/multi-components.png)
 
 このように複数のコンポーネントを単一のインポートで型補完を効かせながら遅延インポートすることができます。
 型定義がLazyExoticComponentにならないところも気に入っています。
