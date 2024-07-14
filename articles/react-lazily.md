@@ -30,9 +30,13 @@ https://react.dev/reference/react/lazy
 
 非同期関数であるimportを内部でよしなにしてくれ、コンポーネントを遅延読み込みすることを可能にしてくれます。
 `React.use`に似ていますね。
-if文で分岐しているなどで、コンポーネントが必要になるまで読み込まない場合にパフォーマンスを向上させることができます。
-`<Suspense />`で囲わないとエラーになるので注意が必要です。
+if文で分岐しているなどで初期描画時に不要な依存がある場合に、コンポーネントが必要になるまで読み込みを延期することでパフォーマンスを向上させることができます。
 このlazyはdefault exportを想定しており、そのままではnamed exportされたコンポーネントに対しては使用できず、ひと工夫が必要です。
+
+:::message
+このようなAPIになっている理由は、モジュールをインポートする場合、その内部の一部だけを読み込むというようなことができないことが理由でしょう。
+コーディング規約やこだわりでdefault exportを使用したくない場合や、外部のライブラリのコンポーネントを直接使用する場合などのケースでは以下の対応方法が考えられます。
+:::
 
 ## 個別に対応する方法
 
@@ -41,7 +45,7 @@ if文で分岐しているなどで、コンポーネントが必要になるま
 ```ts
 import { lazy } from "react";
 
-const SomeComponent = lazy(() => import("./foo/bar").then((module) => ({ default: module.SomeComponent })));
+const SomeComponent = lazy(() => import("./foo").then((module) => ({ default: module.SomeComponent })));
 ```
 
 やっていることは、importしたモジュールの中から希望のexportを選択してそれをdefault exportに変換しているだけです。
@@ -66,7 +70,7 @@ export const lazyImport = <T extends { [P in U]: ComponentType<any> }, U extends
 ```
 
 ```ts:使用例
-const { SomeComponent } = lazyImport(() => import("./foo/bar"), "SomeComponent");
+const { SomeComponent } = lazyImport(() => import("./foo"), "SomeComponent");
 ```
 
 左辺で名前を指定しているにも関わらず、右辺にも名前を指定する必要があるのが少し気になります。
@@ -84,7 +88,7 @@ https://www.npmjs.com/package/react-lazily
 ```ts
 import { lazily } from "react-lazily";
 
-const { } = lazily(() => import("@/ui/form/elements"))
+const { SomeComponent } = lazily(() => import("./foo"))
 ```
 
 通常の`React.lazy`と同様の使用感で、named exportされたコンポーネントをそのまま使用することができます。
@@ -102,7 +106,6 @@ const { } = lazily(() => import("@/ui/form/elements"))
 また、片方のコンポーネントが読み込まれると両方がSuspendされています。
 <https://bmthd.github.io/lazy-import/>
 [ソースコード](<https://github.com/bmthd/lazy-import>)
-
 
 実装を見に行ったところProxyと、asによる型キャストで実装されていました。
 
