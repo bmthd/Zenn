@@ -121,12 +121,12 @@ type APIObject = Record<string, APIValue | Array<APIObject>>;
 次に、処理するに当たって必要になるユーティリティ型を定義します。
 
 ```ts:ユーティリティ型
-type Merge<T extends Record<string, unknown>, U extends Record<string, unknown>> = {
-  [K in keyof T | keyof U]: K extends keyof U ? U[K] : K extends keyof T ? T[K] : never;
-};
+type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
 
 type KeyofNotNested<T extends Record<string, unknown>> = {
-  [K in keyof T]: T[K] extends Array<infer U> ? (U extends APIValue ? never : never) : K;
+  [K in keyof T]: T[K] extends Array<unknown> ? never : K;
 }[keyof T];
 
 type KeyofNested<T extends Record<string, unknown>> = {
@@ -138,7 +138,7 @@ type PickNotNested<T extends Record<string, unknown>> = Pick<T, KeyofNotNested<T
 type PickNested<T extends Record<string, unknown>> = Pick<T, KeyofNested<T>>;
 ```
 
-`Merge`は、型を通した後の交差型の可読性を良くするための型です。
+`Prettify`は、型を通した後の交差型の可読性を良くするための型です。
 `{ foo: string }`と`{ bar: number }`をそのまま`&`で交差させても、`{ foo: string } & { bar: number }`となってしまい、`{ foo: string; bar: number }`とはならないため、それを解決します。
 
 `KeyofNotNested`と、`KeyofNested`は、それぞれ配列でネストしていないキーとネストしているキーを取得するための型です。
@@ -161,10 +161,10 @@ type PickNestedCompany = PickNested<Company>; // { shops: Array<Shop>; }
 ```ts:再帰的にフラットにする関数
 type FlattenObject<T extends APIObject, A extends APIObject = {}> =
   T extends Record<string, APIValue>
-    ? Merge<A, T>
+    ? Prettify<A & T>
     : PickNested<T> extends Record<string, Array<infer U>>
       ? U extends APIObject
-        ? FlattenObject<U, Merge<PickNotNested<T>, A>>
+        ? FlattenObject<U, PickNotNested<T> & A>
         : never
       : never;
 ```
@@ -173,6 +173,7 @@ type FlattenObject<T extends APIObject, A extends APIObject = {}> =
 この実装は、配列操作に使用する`reduce()`関数のaccumulatorに似ていたため、型引数の名前は`A`としています。
 ネストするたびに6行目の処理が再帰的に行われ、最終的に`T`が`Record<string, APIValue>`になる、つまりネストしなくなるまで処理が続きます。
 ネストが終わると、第二引数に今までの結果が渡ってきているため、それと最後のオブジェクトを3行目でマージして最終結果を得ます。
+この際に、Prettifyを通すことで型エイリアスではなく直接の型を得ることができます。
 仕様上、`infer`や`APIObject`での絞り込みが必要なため、Conditional Types(三項演算子)を使用していますが、`never`になることはありません。
 
 使うとこんな感じ。
@@ -197,20 +198,25 @@ type KeyofFlattenedResponse = keyof FlattenedResponse;
 ```
 
 ここで`FlattenedResponse`のキー一覧のユニオン型でなく、`KeyofNotNested<Shop> | KeyofNotNested<Company> | keyof Item`が推論されるのは驚きました。
-ただ、使用側が`KeyofNotNested`の実装を知っている必要があり、見に行く必要が出てきてしまうため、ユニオン型で取得する方法があればより良いと思いました。
-どなたかわかれば教えてください…。
+使用側が`KeyofNotNested`の実装を知っている必要があり、見に行く必要が出てきてしまうため、展開してあげると親切です。
+これも`Prettify`型を通してあげることで展開可能です。
+
+```ts
+type KeyofFlattenedResponse = Prettify<keyof FlattenedResponse>;
+// "location" | "price" | "itemId" | "companyId" | "companyName" | "shopId" | "shopName" | "itemName" | "releasedAt" | "isAvailable"
+```
 
 ```ts:全コード
 type APIValue = string | number | boolean | Date;
 
 type APIObject = Record<string, APIValue | Array<APIObject>>;
 
-type Merge<T extends Record<string, unknown>, U extends Record<string, unknown>> = {
-  [K in keyof T | keyof U]: K extends keyof U ? U[K] : K extends keyof T ? T[K] : never;
-};
+type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
 
 type KeyofNotNested<T extends Record<string, unknown>> = {
-  [K in keyof T]: T[K] extends Array<infer U> ? (U extends APIValue ? never : never) : K;
+  [K in keyof T]: T[K] extends Array<unknown> ? never : K;
 }[keyof T];
 
 type KeyofNested<T extends Record<string, unknown>> = {
@@ -223,10 +229,10 @@ type PickNested<T extends Record<string, unknown>> = Pick<T, KeyofNested<T>>;
 
 type FlattenObject<T extends APIObject, A extends APIObject = {}> =
   T extends Record<string, APIValue>
-    ? Merge<A, T>
+    ? Prettify<T & A>
     : PickNested<T> extends Record<string, Array<infer U>>
       ? U extends APIObject
-        ? FlattenObject<U, Merge<PickNotNested<T>, A>>
+        ? FlattenObject<U, PickNotNested<T> & A>
         : never
       : never;
 
@@ -251,13 +257,13 @@ type Company = {
     shops: Array<Shop>;
     };
 
-export type Response = {
+type Response = {
     data: Array<Company>;
     };
 
 type FlattenedResponse = FlattenObject<Response>; 
 
-type KeyofFlattenedResponse = keyof FlattenedResponse;
+type KeyofFlattenedResponse = Prettify<keyof FlattenedResponse>;
 
 ```
 
@@ -266,6 +272,8 @@ type KeyofFlattenedResponse = keyof FlattenedResponse;
 業務では限られた時間内に実装する必要があったため、解けずに苦しい思いをさせられましたが、自分の時間を使ってゆっくりと解いてみれば、楽しい型パズルになりました。
 一意でないプロパティにも対応したい場合は、ネストするたびに上位オブジェクトの名称を付け、`company.shop.id`のような形でキーを作成することで対応できそうです。
 配列が2つ以上存在する場合のケースについても工夫すれば対応できそうですが、自力では実装できませんでした。
-また、再帰を使っている関係なのか、この型定義を開いたり参照していると、頻繁にコンパイラが落ちます。
+また、再帰を使っている関係なのか、この型定義を開いたり参照していると、ときどきコンパイラが重くなります。
 より良い実装や、上記に対応できる実装方法など、どなたか解けた方がいれば教えていただきたいです。
 業務時間中、ネットの海を死にものぐるいで検索しても出てこず諦めざるを得なくなったので、どなたかの参考になれば幸いです。
+
+2024/7/16: Merge型をPrettify型に変更し、必要ない箇所での使用を減らすことでよりコンパイラへの負荷が軽くなるような実装に変更しました。
