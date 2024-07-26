@@ -22,7 +22,7 @@ VSCodeの設定ファイル`settings.json`に以下の設定を追加します�
 ```json
 {
       "workbench.editor.customLabels.patterns": {
-      "**/{index,page,actions,hooks,components,utils,types}.{js,ts,jsx,tsx,md,mdx}": "${dirname}/${filename}.${extname}",
+      "**/{index,page,layout,template,route,actions,hooks,components,utils,types}.{js,ts,jsx,tsx,md,mdx}": "${dirname}/${filename}.${extname}",
     }
 }
 ```
@@ -43,6 +43,7 @@ globパターンで、対象のファイル名と拡張子を指定します。
 ですが、このファイル名被りが原因で、旧来型のレイヤードアーキテクチャに慣れたメンバーからの理解を得るのが難しくなることがあります。
 実際私もメンバーからそのような指摘を受けたことがあり、自分でも不便な点だと感じていたため、解決方法を探していました。
 VSCode拡張機能でそのようなものが無いのかをずっと探していたのですが、まさか標準機能で解決できるとは思いませんでした。
+どうやら2024年4月5日リリースのver.1.88からの新機能のようでした。
 ググラビリティが低い問題のため、この記事が一助になれば幸いです。
 
 検索用キーワード:
