@@ -41,7 +41,7 @@ DOMコンポーネントのrefの型には、Web標準で定義されているHT
 DOMコンポーネントにはもう一つの指定のしかたもあります。
 
 ```tsx
-const ref = useRef<ElementRef<'div'>>(null);
+const ref = useRef<ComponentRef<'div'>>(null);
 ```
 
 propsにおけるComponentPropsのrefバージョンと考えるとわかりやすいかもしれません。
@@ -50,11 +50,11 @@ propsにおけるComponentPropsのrefバージョンと考えるとわかりや�
 #### カスタムコンポーネント
 
 ```tsx:custom-components.tsx
-import { useRef, type ElementRef, type FC } from 'react';
+import { useRef, type ComponentRef, type FC } from 'react';
 import { Component } from './Component';
 
 const Component :FC = () => {
-    const ref = useRef<ElementRef<typeof Component>>(null);
+    const ref = useRef<ComponentRef<typeof Component>>(null);
 
     const handleClick = useCallback(() => {
     ref.current?.confirm();
@@ -67,7 +67,7 @@ const Component :FC = () => {
 }
 ```
 
-カスタムコンポーネントのrefの型には、ElementRefを使用します。
+カスタムコンポーネントのrefの型には、ComponentRefを使用します。
 コンポーネントの型を型引数に渡してあげることで、そのコンポーネントのrefの型を取得できます。
 
 #### 手動定義
