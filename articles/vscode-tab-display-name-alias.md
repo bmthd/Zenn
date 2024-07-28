@@ -22,7 +22,7 @@ VSCodeの設定ファイル`settings.json`に以下の設定を追加します�
 ```json
   "workbench.editor.customLabels.patterns": {
       "**/index.*": "${dirname} .../${dirname(1)}",
-      "**/{page,actions,hooks,components,utils,types,functions}.{js,ts,jsx,tsx,md,mdx}": "${dirname}/${filename}.${extname} .../${dirname(1)}",
+      "**/{page,actions,hooks,components,utils,types,functions}.{js,ts,jsx,tsx}": "${dirname}/${filename}.${extname} .../${dirname(1)}",
     }
 ```
 
