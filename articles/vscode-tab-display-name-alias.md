@@ -9,10 +9,10 @@ published: true
 
 ## はじめに
 
-VSCodeで、index.tsやpage.tsxなど、同名のファイルを複数同時に開いてしまい、わからなくなってしまったことはありませんか？
+VSCodeで、`index.ts`や`page.tsx`など、同名のファイルを複数同時に開いてしまい、わからなくなってしまったことはありませんか？
 ![alt text](/images/vscode-tab-display-name-alias/image1.png)
 
-実はよく見ると右側にディレクトリ名が表示されているのですが、薄い文字かつ、目線移動のコストが発生するため分かりづらいです。
+実はよく見ると同一名称のファイルを開いているときには右側にディレクトリ名も表示されているのですが、薄い文字かつ、目線移動が必要で分かりづらいです。
 この記事では、VSCodeの設定を変更することで、ファイル名にディレクトリ名を含めて表示する方法を紹介します。
 
 ## 設定方法
@@ -20,26 +20,30 @@ VSCodeで、index.tsやpage.tsxなど、同名のファイルを複数同時に�
 VSCodeの設定ファイル`settings.json`に以下の設定を追加します。
 
 ```json
-{
-      "workbench.editor.customLabels.patterns": {
-      "**/{index,page,layout,template,route,actions,hooks,components,utils,types}.{js,ts,jsx,tsx,md,mdx}": "${dirname}/${filename}.${extname}",
+  "workbench.editor.customLabels.patterns": {
+      "**/index.*": "${dirname} .../${dirname(1)}",
+      "**/{page,actions,hooks,components,utils,types,functions}.{js,ts,jsx,tsx,md,mdx}": "${dirname}/${filename}.${extname} .../${dirname(1)}",
     }
-}
 ```
 
 globパターンで、対象のファイル名と拡張子を指定します。
 この設定例では、Next.jsのプロジェクトでよくあるファイル名を対象にしています。
-2階層以上の表示としたい場合など、より複雑な設定も可能です。
-`${dirname(N)}`で、N番目のディレクトリ名を取得できるので、`path/to/index.js`と表示したい場合は`${dirname(1)}/${dirname}/${filename}.${extname}`と指定します。
-書き方次第で、「index.jsは、ディレクトリ名のみ表示する」など、さまざまな設定が可能です。
-より詳細な記法についてはsettings.jsonでプロパティ名にホバーすると表示されるドキュメントを参照してください。
+
+工夫しているポイントとしては、`.../${dirname(1)}`の部分です。
+`${dirname(N)}`表記で、N階層上のディレクトリ名を取得できるのでそれを利用し、VSCodeのもとの設定に寄せた表示ができるようにしています。
+また、index.*については特別なファイルのため、そのディレクトリ名を表示するようにしています。
 
 ![alt text](/images/vscode-tab-display-name-alias/image2.png)
-これで同名になりがちなファイルは、ディレクトリ名を含めて表示されるようになりました。
+これで同名になりがちなファイルは、ディレクトリ名を含めて表示されるようになりました！
+
+絶対パスを利用して、絵文字を表示するやり方を提示している方もいました。
+これは面白いアイデアですね。
+https://dev.classmethod.jp/articles/vscode-custom-tab-labels-for-better-coding/
+より詳細な記法についてはsettings.jsonでプロパティ名にホバーすると表示されるドキュメントを参照してください。
 
 ## おわりに
 
-フロントエンドをはじめ、最近はコロケーション / package by featureの概念が一般にも理解されつつあり、責務に応じたディレクトリ構成が受け入れられやすくなってきています。
+最近のフレームワークがそれ前提の設計になっていることもあり、co-location / package by featureの概念が一般にも理解され、責務に応じたディレクトリ構成が受け入れられやすくなってきています。
 ですが、このファイル名被りが原因で、旧来型のlayerベースのディレクトリ構成に慣れたメンバーからの理解を得るのが難しくなることがあります。
 実際私もメンバーからそのような指摘を受けたことがあり、自分でも不便な点だと感じていたため、解決方法を探していました。
 VSCode拡張機能でそのようなものが無いのかをずっと探していたのですが、まさか標準機能で解決できるとは思いませんでした。
