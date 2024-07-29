@@ -13,7 +13,7 @@ VSCodeで、`index.ts`や`page.tsx`など、同名のファイルを複数同時
 ![alt text](/images/vscode-tab-display-name-alias/image1.png)
 
 実はよく見ると同一名称のファイルを開いているときには右側にディレクトリ名も表示されているのですが、薄い文字かつ、目線移動が必要で分かりづらいです。
-この記事では、VSCodeの設定を変更することで、ファイル名にディレクトリ名を含めて表示する方法を紹介します。
+この記事では、VSCodeの設定を変更することで、タブ表示名にディレクトリ名を含めて表示する方法を紹介します。
 
 ## 設定方法
 
@@ -22,7 +22,7 @@ VSCodeの設定ファイル`settings.json`に以下の設定を追加します�
 ```json
   "workbench.editor.customLabels.patterns": {
       "**/index.*": "${dirname} .../${dirname(1)}",
-      "**/{page,actions,hooks,components,utils,types,functions}.{js,ts,jsx,tsx}": "${dirname}/${filename}.${extname} .../${dirname(1)}",
+      "**/{page,layout,template,route,actions,hooks,components,utils,types}.{js,ts,jsx,tsx}": "${dirname}/${filename}.${extname} .../${dirname(1)}",
     }
 ```
 
