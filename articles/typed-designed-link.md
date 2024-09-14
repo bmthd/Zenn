@@ -99,14 +99,14 @@ declare module "@yamada-ui/react" {
 Yamada UI側のLinkOptionsはexportされていないため、バージョンアップなどで新たな型が増えた場合その都度、こちらにも追加していく必要があります。
 より良い方法があればご提示ください！
 
-![alt text](/images/typed-designed-link/next-link.png)
+![Next.js Link](/images/typed-designed-link/next-link.png)
 
 hrefの型をNext.jsのRouteで上書きすることに成功しました。
 
 :::message
 
 Next.jsのTypedRoute、内部の実装を見ると`DynamicRoutes<T>`という型が自動生成されてはいるものの、Dynamic Segmentsの型が取得できない気がするのですが、私だけでしょうか？
-![alt text](/images/typed-designed-link/next-dynamic.png)
+![Next.js Dynamic Route Param](/images/typed-designed-link/next-dynamic.png)
 :::
 
 ## YamadaUI × TanStack Router
@@ -133,7 +133,7 @@ declare module "@yamada-ui/react" {
 }
 ```
 
-![alt text](/images//typed-designed-link/tsr-link.png)
+![TanStack Router Link](/images/typed-designed-link/tsr-link.png)
 
 これでtoやparamsを使った遷移を型付きで使えるようになりました！
 
