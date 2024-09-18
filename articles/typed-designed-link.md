@@ -106,7 +106,8 @@ hrefの型をNext.jsのRouteで上書きすることに成功しました。
 
 :::message
 
-Next.jsのTypedRoute、内部の実装を見ると`DynamicRoutes<T>`という型が自動生成されてはいるものの、Dynamic Segmentsの型が取得できない気がするのですが、私だけでしょうか？
+Next.jsのTypedRoute、内部の実装を見ると`DynamicRoutes<T>`という型が自動生成されてはいるものの、Dynamic Segmentsの型が取得できないケースがあるようです。
+以前は取れていたはずなのですが、私は取れなくなってしまいました…。
 ![Next.js Dynamic Route Param](/images/typed-designed-link/next-dynamic.png)
 
 現在Next.jsのTypedRoutesはExperimentalな機能となっており、こちらのIssueで議論されています。
