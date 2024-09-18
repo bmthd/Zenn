@@ -1,5 +1,5 @@
 ---
-title: "YamadaUIとルーティングFWを組み合わせて型付きLinkを作る"
+title: "UIライブラリとルーティングFWを組み合わせて型付きLinkを作る"
 emoji: "🔗"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [react,typescript,yamadaui,tanstackrouter,nextjs]
@@ -16,11 +16,12 @@ UIライブラリから提供されている、デザイン付きのLinkコン�
 
 UIライブラリのコンポーネントは、デザインやスタイルのみを提供しており、renderされるタグは標準HTMLの`<a>`タグとなります。
 このままでは遷移がソフトウェアナビゲーションとならず、読み込みによるちらつきが発生してしまいます。
-また、ルーティングフレームワークが提供するLinkコンポーネントは、ソフトウェアナビゲーションが実装されており、使用する際にはアプリケーション内のURL以外を指定した際に、型エラーが発生するものもありますが、デザインやスタイルを提供しているわけではありません。
+また、ルーティングフレームワークが提供するLinkコンポーネントは、ソフトウェアナビゲーションが実装されており、使用する際にはアプリケーション内のURL以外を指定した際に、型エラーで補足できるようにしてくれるものもありますが、デザインは自分で適用する必要があります。
 そこで、コンポーネントライブラリにフレームワークのLinkを実装し、型を付けることで、デザインと遷移、型安全を両立させます。
 
 :::message
 テキストリンクのコンポーネントの例ですが、ボタンやアイコン、ページネーションやパンくずリストなど、様々なコンポーネントに適用できます。
+現在はYamada UIの例のみ掲載していますが、今後増やすかもしれません。
 :::
 
 ## YamadaUI × Next.js
@@ -107,6 +108,9 @@ hrefの型をNext.jsのRouteで上書きすることに成功しました。
 
 Next.jsのTypedRoute、内部の実装を見ると`DynamicRoutes<T>`という型が自動生成されてはいるものの、Dynamic Segmentsの型が取得できない気がするのですが、私だけでしょうか？
 ![Next.js Dynamic Route Param](/images/typed-designed-link/next-dynamic.png)
+
+現在Next.jsのTypedRoutesはExperimentalな機能となっており、こちらのIssueで議論されています。
+https://github.com/vercel/next.js/discussions/55499
 :::
 
 ## YamadaUI × TanStack Router
