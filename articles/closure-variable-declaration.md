@@ -36,7 +36,7 @@ const item = { name: "foo", price: 100 };
 
 const Item = () => (
   <div>
-    {fromObject(item)(({ name, price }) => (
+    {fromObject(item).map(({ name, price }) => (
       <p>{name} : {price}</p>
     ))}
   </div>
