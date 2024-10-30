@@ -140,7 +140,7 @@ type FieldsetProps<T extends FieldMetadata<Record<string, any> | undefined, any,
   children: ({ field: ReturnType<T["getFieldset"]> }) => ReactNode;
 } & Omit<ComponentProps<"fieldset">, "children">;
 
-export const Fieldset = <T extends FieldMetadata<Record<string, unknown>, any, any>>({
+export const Fieldset = <T extends FieldMetadata<Record<string, any> | undefined, any, any>>({
   field,
   children,
   ...props
@@ -214,7 +214,7 @@ export type FormSchema = {
 }
 ```
 
-この構造をFieldsetとFieldコンポーネントで視覚的に表現でき、とても可読性の高いフォームコンポーネントができました！
+この構造をFieldsetとFieldコンポーネントで視覚的に表現することで、可読性の高いフォームコンポーネントを作ることができます。
 
 ## まとめ
 
