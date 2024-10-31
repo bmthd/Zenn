@@ -1,5 +1,5 @@
 ---
-title: "`() => ReactNode` 引数付きchildrenで広がるコンポーネントの表現力"
+title: "引数付きchildrenで広がるコンポーネントの表現力"
 emoji: "🧩"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [react,typescript,nextjs,conform]
