@@ -70,7 +70,7 @@ export const App: FC = () => {
 ```
 
 [公式ドキュメント](https://react.dev/reference/react/createContext#consumer)にも、`<Context.Consumer>`の子要素は関数であると書かれています。
-`Context.Consumer`を使うと、Contextの値（例では`value`）を直接参照できるようになり、スコープが`children`内で完結します。
+`Context.Consumer`を使うと、Contextの値（例では`value`）をテンプレート内で直接参照できるようになり、スコープが`children`内で完結します。
 現在は、`useContext`フックが登場したため、`<Context.Consumer>`を使うメリットが薄くなっていますが、`value`変数のスコープを`children`内の式の中に閉じ込められるというのは、依然として有用です。
 `children`が関数でも問題ないことがわかります。
 
