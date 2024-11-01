@@ -11,23 +11,7 @@ published: true
 Reactのchildrenを関数として受け取ることができるのをご存知でしょうか？
 これを活用することでコンポーネントの表現力が向上します。
 
-```tsx:普通のコンポーネント
-import { FC, ReactNode } from 'react'
-
-export const App: FC = () => {
-  return (
-    <Component>
-      <h1>こんにちは</h1> {/* ここがchildren */}
-    </Component>
-  )
-}
-
-const Component: FC<{ children: ReactNode }> = ({ children }) => {
-  return <div>{children}</div>
-}
-```
-
-```tsx:子要素が関数のコンポーネント
+```tsx:app.tsx
 import { FC, ReactNode } from 'react'
 
 export const App: FC = () => {
