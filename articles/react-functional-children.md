@@ -1,5 +1,5 @@
 ---
-title: "`() => ReactNode` 引数付きchildrenで広がるコンポーネントの表現力"
+title: "引数付きchildrenで広がるコンポーネントの表現力"
 emoji: "🧩"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [react,typescript,nextjs,conform]
@@ -11,23 +11,7 @@ published: true
 Reactのchildrenを関数として受け取ることができるのをご存知でしょうか？
 これを活用することでコンポーネントの表現力が向上します。
 
-```tsx:普通のコンポーネント
-import { FC, ReactNode } from 'react'
-
-export const App: FC = () => {
-  return (
-    <Component>
-      <h1>こんにちは</h1> {/* ここがchildren */}
-    </Component>
-  )
-}
-
-const Component: FC<{ children: ReactNode }> = ({ children }) => {
-  return <div>{children}</div>
-}
-```
-
-```tsx:子要素が関数のコンポーネント
+```tsx:app.tsx
 import { FC, ReactNode } from 'react'
 
 export const App: FC = () => {
@@ -70,7 +54,7 @@ export const App: FC = () => {
 ```
 
 [公式ドキュメント](https://react.dev/reference/react/createContext#consumer)にも、`<Context.Consumer>`の子要素は関数であると書かれています。
-`Context.Consumer`を使うと、Contextの値（例では`value`）を直接参照できるようになり、スコープが`children`内で完結します。
+`Context.Consumer`を使うと、Contextの値（例では`value`）をテンプレート内で直接参照できるようになり、スコープが`children`内で完結します。
 現在は、`useContext`フックが登場したため、`<Context.Consumer>`を使うメリットが薄くなっていますが、`value`変数のスコープを`children`内の式の中に閉じ込められるというのは、依然として有用です。
 `children`が関数でも問題ないことがわかります。
 
@@ -84,6 +68,8 @@ childrenを関数として渡すと、親コンポーネントから子コンポ
 例えば、状態に応じて異なるUIを表示したり、動的に生成されるデータに基づいてUIを更新することが可能です。
 もし、`children(prop)`を使わずに子コンポーネントの内部にアクセスしようとすると、Context APIや、`useImperativeHandle`などの追加のAPIを使う必要があります。
 不必要にグローバルな変数を増やすことになり、そのために必要なコードも増えてしまいます。
+また、これらはフックのためClient Componentを強制されますが、'children(prop)'だけであればServer Componentを保つことができます。(後述の例はどちらもSCです。)
+Server - Client間の境界をよりパフォーマンスが良いServer側に寄せた実装で行うことができるわけですね。
 つまり、以下のような多態性のある表現が変数のスコープをchildren内に狭めながら可能になります。
 
 - 状態を親コンポーネントに公開することなく、親コンポーネント側から中身をカスタマイズする
