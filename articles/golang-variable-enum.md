@@ -24,7 +24,7 @@ type EndPoint interface {
 type EndPointString string
 func (EndPoint) isEndPoint(){}
 
-type EndPointFunc func(...args string) string
+type EndPointFunc[Args []string] func(args ...Args) string
 func (EndPoint) isEndPoint(){}
 
 var (
