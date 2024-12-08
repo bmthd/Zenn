@@ -34,7 +34,7 @@ export default (() => {
 ```tsx:layout.tsx
 export default (({children}) => {
     return <div>{children}</div>
-}) satisfies FC<{ children: ReactNode}>
+}) satisfies FC<{ children: ReactNode }>
 ```
 
 - 変数名を考えなくて良い！

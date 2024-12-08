@@ -51,6 +51,7 @@ type endPointFunc func(arg string) endPointString
 
 func (endPointFunc) isEndPoint() {}
 
+// 再代入禁止のURI エンドポイント定数
 var (
   USER_LIST   endPointString = "/user"
   USER_DETAIL endPointFunc   = func(userID string) endPointString {
@@ -102,7 +103,7 @@ package main
 
 import (
   "fmt"
-  "http"
+  "net/http"
   "github.com/yourname/yourproject/endpoint"
 )
 
