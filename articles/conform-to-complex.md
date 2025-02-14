@@ -14,7 +14,7 @@ https://speakerdeck.com/bmthd/formnofu-za-sanili-tixiang-kau
 
 ## Formの悩み
 
-![典型的なお問い合わせフォーム](/images/conform-to-complex/image.png)
+![典型的なお問い合わせフォーム](/images/conform-to-complex/form.png)
 
 このようなシンプルなフォームを想像してみてください。
 これを実現するためのHTMLは以下のようなものになります。
