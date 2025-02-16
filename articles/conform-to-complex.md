@@ -163,22 +163,22 @@ RHFはその名前にもある通り、Reactに大きく依存した設計とな
 import { useForm, getInputProps } from '@conform-to/react';
 
 function Example() {
-  const [form, fields] = useForm();
+  const [form, field] = useForm();
 
   return (
     <form>
-      <input {...getInputProps(fields.password, { type: 'password' })} /> {/* Conformのユーティリティで一括設定 */}
-      <input name={fields.password.name} /> {/* Conformの型推論で設定 */}
+      <input {...getInputProps(field.password, { type: 'password' })} /> {/* Conformのユーティリティで一括設定 */}
+      <input name={field.password.name} /> {/* Conformの型推論で設定 */}
       <input name="password" /> {/* 手動で設定 */}
     </form>
   )
 }
 ```
 
-register関数に似た仕組みとしてgetXXPropsというものが入力欄の種類ごとに用意されており、それぞれの入力欄に適した属性を一括で設定することもできます。
-これには、name属性、id、制約、アクセシビリティ属性などが含まれます。
-RHFでは手動で設定していた制約をスキーマから導出することができ、更にはアクセシビリティにも対応できるのが決定的な違いとなります。
-余談となりますが、内部実装は最近のライブラリによく見られるvanillaJSでの実装のため、今後React以外のライブラリへ対応できる余地が残されています。
+register関数に似た仕組みとして`getXXXProps`という関数が入力欄の種類ごとに用意されており、それぞれの入力欄に適した属性を一括で設定することもできます。
+これには、id、name属性、バリデーション制約、アクセシビリティ属性などが含まれます。
+RHFでは手動で設定していたバリデーション制約をスキーマから導出することができ、更にはアクセシビリティにも対応できるのが決定的な違いとなります。
+余談となりますが、内部実装は最近のライブラリによく見られるVanillaJSでの実装のため、今後React以外のライブラリへ対応できる余地が残されています。
 
 ## Conformと実装吸収層で実現する、シンプルなform実装
 
@@ -286,19 +286,76 @@ Conformの場合はname属性を持つ入力欄を探索する方式を採用し
 UIライブラリのSelectコンポーネントは、HTMLの`select`と実装が異なり、FormライブラリとのIntegrationが必要となります。
 Conformにおいても`useControl`フックでそのような独自実装のコンポーネントを管理下に置くことができます。
 
+:::details Selectコンポーネントの例
+
+```tsx:Selectコンポーネントの例
+import { getSelectProps, useField, useInputControl } from "@conform-to/react";
+import { handlerAll, Select, SelectProps } from "@yamada-ui/react";
+import { useCallback, type FC } from "react";
+import { CustomFormControl } from "./form-control";
+import { type FieldProps } from "./types";
+import { getFieldErrorProps } from "./utils";
+
+interface SelectFieldProps extends FieldProps<string>, Omit<SelectProps, "name"> {}
+
+export const SelectField: FC<SelectFieldProps> = ({
+  name = "",
+  label,
+  helperMessage,
+  onChange,
+  ...props
+}) => {
+  const [fieldMeta] = useField(name);
+  const { value, change, blur, focus } = useInputControl(fieldMeta);
+
+  const handleChange = useCallback(handlerAll(change, onChange), [change, onChange]);
+
+  const { defaultValue: _, ...mergedProps } = {
+    ...props,
+    ...getSelectProps(fieldMeta, { value: false }),
+  };
+  return (
+    <CustomFormControl {...{ label, helperMessage }} {...getFieldErrorProps(fieldMeta)}>
+      <Select
+        value={value}
+        onChange={handleChange}
+        onBlur={blur}
+        onFocus={focus}
+        {...mergedProps}
+        key={fieldMeta.key}
+      />
+    </CustomFormControl>
+  );
+};
+```
+
+カスタムのSelectコンポーネントにはFormDataとして取得できる値が存在しないため、Conformにhidden inputとして描画させる必要があります。
+また、blurやfocusなどのイベントの差異がある場合はそれを発火させたいタイミングをカスタマイズする必要があります。
+
+:::
+
 - 動的入力欄対応
 
 他ライブラリで実装が難しい動的入力欄は、スキーマから自動で推論されて`field.getFieldList()`で非常に簡単に作成できます。
 
 - SPAでの利用ももちろん可能
 
-Next.jsなどのサーバーフレームワークで使用する前提のような触れ込みとなっていますが、サーバー側で行っているFormDataの変換をクライアントサイドで行えば、SPAでも利用することができます。
-Submitせずに、`button`のクリックイベントの`event.currentTarget.form`から取得したFormDataをparseしてしまえば、クライアントサイドでも同期的に値を取り出すことができます。
+多くのConformの紹介記事ではNext.jsなどのサーバーフレームワークで使用する前提のような触れ込みとなっていることが多いのですが、サーバー側で行っているFormDataの変換をクライアントサイドで行えば、SPAでも利用することができます。
+submitせずに、`button`のクリックイベントの`event.currentTarget.form`から取得したFormDataをparseしてしまえば、クライアントサイドでも同期的に値を取り出すことができます。
 React Hook Formよりもシンプルに実装できるため、私はSPAでもConformを使っています。
+
+```tsx:SPAでの利用例
+const handleClick = useCallback<React.MouseEventHandler<HTMLButtonElement>>((event) => {
+  const formData = new FormData(event.currentTarget.form);
+  const submission = parseWithValibot(formData, { schema: inquiryFormSchema });
+  if (submission.status !== "success") return;
+  mutate(submission.value); // TanStack Queryなどでサーバーに送信
+}, [mutate]);
+```
 
 - リアクティブな状態へのアクセスももちろん可能
 
-`form.value`あるいは`field.value`で、リアクティブな値にアクセスできます。
+`form.value`あるいは`field.{{ name }}.value`で、リアクティブな値にアクセスできます。
 追加のAPIなどなしで簡単に利用できるため、わかりやすいです。
 Proxyを使った実装になっており、valueへのアクセスがあるとそのコンポーネントが使用している値をSubscribeするような仕組みになっています。
 
