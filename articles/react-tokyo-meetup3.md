@@ -73,6 +73,10 @@ AIはまさに今後のトレンドとなる技術ということもあり、皆
 
 ![グループワークの様子](/images/react-tokyo-meetup/group-work1.jpg)
 
+![グループワークの様子](/images/react-tokyo-meetup/group-work2.jpg)
+
+![グループワークの様子](/images/react-tokyo-meetup/group-work3.jpg)
+
 ## 交流会の様子
 
 交流会では、参加者同士で自由に会話を楽しみました。
@@ -80,6 +84,8 @@ Reactに関する話題だけでなく、様々な話題で盛り上がってい
 話していると、あっという間に時間が過ぎてしまい、最後はとても名残惜しい気持ちになりました。
 
 ![交流会の様子](/images/react-tokyo-meetup/exchange.jpg)
+
+![集合写真](/images/react-tokyo-meetup/photo.jpg)
 
 ## おわりに
 
