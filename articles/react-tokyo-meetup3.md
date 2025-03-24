@@ -22,9 +22,9 @@ Reactに関するLTも行われます！
 
 今回は３度目の開催で、参加者は約40名でした。
 
-![オプティム社のロゴを背に受付をする様子](/images/react-tokyo-meetup3/optim.jpg)
+![オプティム社のロゴを背に受付をする様子](/images/react-tokyo-meetup/optim.jpg)
 
-![説明をする様子](/images/react-tokyo-meetup3/guide.jpg)
+![説明をする様子](/images/react-tokyo-meetup/guide.jpg)
 
 ## 発表資料
 
@@ -55,15 +55,15 @@ Reactに関するLTも行われます！
 皆さんとても奥が深い内容をお話しされていて、とても興味深かったです。
 特にメイントークでは、実際にflowのコードを追うことでReactも普通のライブラリと同じように作られていることがわかり、とても勉強になりました。
 
-![メイントークの様子](/images/react-tokyo-meetup3/main1.jpg)
+![メイントークの様子](/images/react-tokyo-meetup/main1.jpg)
 
-![React内部のflowコード](/images/react-tokyo-meetup3/main2.jpg)
+![React内部のflowコード](/images/react-tokyo-meetup/main2.jpg)
 
-![ViewTransitionのスライド](/images/react-tokyo-meetup3/lt1.jpg)
+![ViewTransitionのスライド](/images/react-tokyo-meetup/lt1.jpg)
 
-![create-tsrouter-appのスライド](/images/react-tokyo-meetup3/lt2.jpg)
+![create-tsrouter-appのスライド](/images/react-tokyo-meetup/lt2.jpg)
 
-![Clineによる改善のスライド](/images/react-tokyo-meetup3/lt3.jpg)
+![Clineによる改善のスライド](/images/react-tokyo-meetup/lt3.jpg)
 
 ## グループワークの様子
 
@@ -71,7 +71,7 @@ Reactに関するLTも行われます！
 テーマは「開発にAI活用してる？」。
 AIはまさに今後のトレンドとなる技術ということもあり、皆さん熱心に話し合っていました。
 
-![グループワークの様子](/images/react-tokyo-meetup3/group-work1.jpg)
+![グループワークの様子](/images/react-tokyo-meetup/group-work1.jpg)
 
 ## 交流会の様子
 
@@ -79,7 +79,7 @@ AIはまさに今後のトレンドとなる技術ということもあり、皆
 Reactに関する話題だけでなく、様々な話題で盛り上がっていました。
 話していると、あっという間に時間が過ぎてしまい、最後はとても名残惜しい気持ちになりました。
 
-![交流会の様子](/images/react-tokyo-meetup3/exchange.jpg)
+![交流会の様子](/images/react-tokyo-meetup/exchange.jpg)
 
 ## おわりに
 
