@@ -135,9 +135,9 @@ R.times(count, i => {
 Remedaのような外部ライブラリに用意されている関数を用意すればもっと簡単に書く方法もあります。
 この関数は値も返せます。
 
-### 条件を満たす間繰り返す
+## 条件を満たす間繰り返す
 
-- `while`を使った方法
+### `while`を使った方法
 
 ```ts
 class SmartPhone {
@@ -165,7 +165,7 @@ while(smartPhone.isLowBattery()) { // trueの間繰り返す
 
 `while`を使うことで条件を満たす間繰り返す処理を実現できます。
 
-- `do while`を使った方法
+### `do while`を使った方法
 
 ```ts
 const smartPhone = new SmartPhone();
@@ -177,7 +177,7 @@ do {
 
 `do while`を使うことで最初の一回だけ条件を無視して処理を実行することもできます。
 
-- 前回の結果を次のループに使いたい
+### 前回の結果を次のループに使いたい
 
 ```ts
 const hanoi = (height: number, first: number, temp: number, last: number): void => {
