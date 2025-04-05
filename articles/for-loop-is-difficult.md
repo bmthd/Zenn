@@ -1,5 +1,5 @@
 ---
-title: "【チートシート】JavaScriptのforループ難しすぎ！？まとめてみた"
+title: "【TS/JS】ユースケース別 ループの書き方【同期/非同期/直列/並列】"
 emoji: "📘"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [javascript, typescript]
@@ -62,6 +62,7 @@ items.forEach((item, index) => {
 [TypeScript Playground](https://www.typescriptlang.org/play/?target=99#code/MYewdgzgLgBAllApgWwjAvDA2gRgDQwBMBAzAQCwECsAugNwBQCKEAdAGYgBOAogIbAAFgAphzZAThgAJogAeASgwA+GAG8GMGKEggANolZ6QAczEz5kpMgWMAvraA)
 
 `forEach`を使うことでより簡潔に書くことができます。
+indexが欲しい場合にループを2回回さずに済むメリットもあります。
 
 ### 式として値を返したい場合
 
@@ -99,29 +100,17 @@ for (let i = 0; i < count; i++) {
 実害はあまりないもしれませんが、コーディング規約によっては禁止されていることもあるので、使わずに済む方法も覚えておくとよいでしょう。
 
 ```ts
-const count = 10;
-for (const i of Array.from({ length: count }, (_, i) => i)) {
+const count = 100;
+for (const i of Array(count).keys()) {
   console.log(i);
 }
 ```
 
-[TypeScript Playground](https://www.typescriptlang.org/play/?target=99#code/MYewdgzgLgBKCuZYF4YEYAMBuAUAMxACcYAKUSWASxhDxgEFDCBDATwDo9CQBbEgbxgAbAKZgA5lAAWALjghEsAL4AaUgH01lAJQxkAPhg7d-HDHmQQo9kJDiSO3EqA)
-
-第一引数で生成する配列の数を指定し、第2引数では`Array.prototype.map`と同様の配列をどのように生成するかを決める関数を渡します。
-指定回数繰り返すだけなのにちょっと複雑ですね…。
-
-```ts
-const count = 10;
-for (const i of Array(count).fill(0).map((_, i) => i)) {
-  console.log(i);
-}
-```
-
-[TypeScript Playground](https://www.typescriptlang.org/play/?target=99&ssl=4&ssc=2&pln=1&pc=1#code/MYewdgzgLgBKCuZYF4YEYAMBuAUAMxACcYAKUSWASxhDxgEFDCBDATzJESgEoA6PSgBtBJDHwC2zAA4kSAfQA0MStxjIAfMu6qA3jhhxwEEIICmvQSADmJFbgC+QA)
+[TypeScript Playground](https://www.typescriptlang.org/play/?#code/MYewdgzgLgBKCuZYF4YEYAMGDcAoAZiAE4wAUoksAljCPjAIJFECGAnuSIlAJQB0AawCmbCKR48YAb1ww44CCAA2QvkpABzUlR54AvkA)
 
 こちらは別解です。
-配列を0で埋め、`map`でインデックスを生成しています。
-インデックスが要らなければ`map`を省略すれば`fill`だけで生成することもできます。
+`Array(count)`で指定した長さの空の配列を生成し、`keys()`でそのindexだけを取り出しています。
+`Array.from({ length: count }, (_, i) => i)`などよりもサクッと作れるのでおすすめです。
 
 ```ts
 import * as R from "remeda";
@@ -164,6 +153,7 @@ while(smartPhone.isLowBattery()) { // trueの間繰り返す
 [TypeScript Playground](https://www.typescriptlang.org/play/?target=99#code/MYGwhgzhAEDKC2YBOAXACgCwPYDsCm0A3gFDTQAOSAlgG5goEBG9DSAngFzQ4Cu8jeJNAC80AAwBuYqWjAMyAOZ4AFAEouNLFQAmRGWRQYqEAHTMUrNtADUogIyT9s3BCwg8JkFgXKA5HMU8Dl8AGmhDYzMWQTZVKTIAX2kyYwAZLAB3ACFo9jUuRiw3PDAcPTIyYBdiz28-NMycixjgsIjTc0toAB5oBzE4pyQ8FB4kMvao5vYevrFHROIk4iqcCBRoCERUTFwCUXwMuG30bHw1KWIMo3dlLeRTvZMG7Ny2NVUiaAB6b-CkHh4QB2DIBk1MADn6AKIZACvxgE0GGT3HZnDwBJBKC5LIA)
 
 `while`を使うことで条件を満たす間繰り返す処理を実現できます。
+途中で`continue`や`break`を使うことで、ループを抜けたりスキップしたりすることもできます。
 
 ### `do while`を使った方法
 
@@ -195,9 +185,22 @@ hanoi(3, 1, 2, 3);
 自分自身を呼び出すことで次のループに前回の結果を引き継ぐことができます。
 この方法は末尾再帰の実装があるSafariやBun以外のランタイムではStack Overflowを起こす可能性があるため、注意が必要です。
 
+再帰的な構造が必要なければ`reduce`を使うことで同様の処理を実現できます。
+
+```ts
+const items = [1, 2, 3, 4, 5];
+
+const result = items.reduce((acc, item) => {
+  console.log(acc, item);
+  return acc + item;
+}, 0);
+
+console.log('Total:', result);
+```
+
 ## 非同期処理
 
-非同期処理を含む場合、ループはさらに難しくなります。
+非同期処理を含む場合、ループはさらに複雑になります。
 
 :::message
 例文はトップレベルに記載しているため、どこでも実行できるように`void run();`で戻り値のPromiseを無視して関数を呼び出しています。
@@ -309,6 +312,7 @@ const run = async () => {
 
 void run();
 ```
+
 [TypeScript Playground](https://www.typescriptlang.org/play/?target=99#code/MYewdgzgLgBAllApgWwjAvDA2gRgDQwBMBAzAQCwECsAugNwBQDoksADgE4jCIRqYBDCAE8wwGAAoEKAFwwwAV2QAjRBwCUGAHwwA3gxgwBAdwEJ5iYzAAKXZHAiIJHXiAA2AN0TaYjqABU4ZEQQBShnV09EAhwABnj1dUZDOAAzSWlkDHRMEk19Q0MoAAsuKzBLGABRDi4OCQAiNTqGpIMYAF92lygFDjB4JGRGDsZmcGgYDgUBwRExSU10HQKYFkmXCAU3WEFTc1sQe0cAOgE3NwBlRCgoN0QAEykhiBPkATZnlB9Obl4IL7IRJtQybbZQE6pEAcKoCYDFCQSX7HaLwMAPRAADyWK3aKXSSLsDkQJ2gAl6-ByMAaqW2qTgF0erT0eMK63cJLcIAA5lJ0ViCMjiScPOcFIgQYUOjBEG5HCzCmyJhyTs1oXyMZjBUTTi4hOBJYYuka2l0GB4QHAHlMZhIkkA)
 `Promise.allSettled`は`Promise.all`と似ていますが、失敗してもErrorをthrowすることなく処理を続行します。
 戻り値は`{ status: "fulfilled", value: T } | { status: "rejected", reason: any }`の配列で、Result型になっています。
