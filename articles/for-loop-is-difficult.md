@@ -62,7 +62,7 @@ items.forEach((item, index) => {
 [TypeScript Playground](https://www.typescriptlang.org/play/?target=99#code/MYewdgzgLgBAllApgWwjAvDA2gRgDQwBMBAzAQCwECsAugNwBQCKEAdAGYgBOAogIbAAFgAphzZAThgAJogAeASgwA+GAG8GMGKEggANolZ6QAczEz5kpMgWMAvraA)
 
 `forEach`を使うことでより簡潔に書くことができます。
-indexが欲しい場合にループを2回回さずに済むメリットもあります。
+ただし、こちらは`break`や`continue`ができず非同期処理が意図した通りに動作しないなど癖があります。
 
 ### 式として値を返したい場合
 
@@ -111,18 +111,6 @@ for (const i of Array(count).keys()) {
 こちらは別解です。
 `Array(count)`で指定した長さの空の配列を生成し、`keys()`でそのindexだけを取り出しています。
 `Array.from({ length: count }, (_, i) => i)`などよりもサクッと作れるのでおすすめです。
-
-```ts
-import * as R from "remeda";
-
-const count = 10;
-R.times(count, i => {
-  console.log(i);
-});
-```
-
-Remedaのような外部ライブラリに用意されている関数を用意すればもっと簡単に書く方法もあります。
-この関数は値も返せます。
 
 ## 条件を満たす間繰り返す
 
@@ -204,7 +192,7 @@ console.log('Total:', result);
 
 :::message
 例文はトップレベルに記載しているため、どこでも実行できるように`void run();`で戻り値のPromiseを無視して関数を呼び出しています。
-フレームワークやライブラリを使う場合は、内部で呼んでくれることが多いため、このような書き方は必ずしも必要ではありません。
+フレームワークやライブラリを使う場合は、内部で呼んでくれることもあり、このような書き方は必ずしも必要ではありません。
 :::
 
 ### 直列処理
