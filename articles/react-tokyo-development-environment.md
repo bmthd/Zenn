@@ -1,8 +1,8 @@
 ---
 title: "React Tokyo トレンドレポート #5 : 開発環境を自慢する小部屋"
 emoji: "🖥️"
-type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [react,typescript]
+type: "idea" # tech: 技術記事 / idea: アイデア
+topics: []
 published: false
 publication_name: "react_tokyo"
 ---
