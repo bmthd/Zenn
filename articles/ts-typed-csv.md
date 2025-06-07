@@ -13,6 +13,8 @@ CSVファイルをTypeScriptで型安全に扱う方法について、具体的�
 
 https://exp.bmth.dev/csv
 
+![デモページが表示されている](/images/ts-typed-csv/image.png)
+
 ## CSVの悩み：なぜJSONのようにいかないのか
 
 JSONファイルは、TypeScriptプロジェクトにおいて非常に扱いやすい存在です。
