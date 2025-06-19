@@ -21,6 +21,7 @@ https://valibot.dev/
 
 ```ts
 import * as v from "valibot";
+
 const nameSchema = v.pipe(
   v.string(),
   v.minLength(2),
@@ -50,6 +51,8 @@ const schema = v.object({
 スキーマの命名に独自の記号を付けることでそれがスキーマであることを表明します。
 
 ```ts
+import * as v from "valibot";
+
 const $name = v.pipe(
   v.string(),
   v.minLength(2),
