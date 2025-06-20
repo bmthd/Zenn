@@ -113,16 +113,12 @@ import時に`validation.name`のように名前空間を指定することで、
 
 ```ts
 // /lib/validation.ts
-import * as v from "valibot";
-import { name } from "./name";
-import { carrierMail } from "./carrierMail";
-
-export {
-  name,
-  carrierMail,
-};
-
+import * as v from "valibot"
+export { name } from "./name";
+export { carrierMail } from "./carrierMail";
 export * from "valibot";
+
+v.setGlobalConfig({lang:"ja"});
 
 // imple.ts
 import * as v from "@/lib/validation";
@@ -134,6 +130,7 @@ const schema = v.object({
 });
 ```
 
+自作の関数と、Valibotの関数をまとめて同じモジュールから再エクスポートします。
 これならValibotと全く同じ使い方を保ったまま、カスタムのバリデーション関数を同じ名前空間に定義できます！
 Valibotの使い方と合わせるために、スキーマを変数ではなく関数として定義するようにしているのもポイントです。
 
