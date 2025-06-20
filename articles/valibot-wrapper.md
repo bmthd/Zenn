@@ -118,7 +118,7 @@ export { name } from "./name";
 export { carrierMail } from "./carrierMail";
 export * from "valibot";
 
-v.setGlobalConfig({lang:"ja"});
+v.setGlobalConfig({ lang:"ja" });
 
 // imple.ts
 import * as v from "@/lib/validation";
