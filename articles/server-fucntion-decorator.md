@@ -57,9 +57,9 @@ import { withValidate } from "./decorators";
 import { type User, userSchema } from "./domain";
 import { failure, type ResultAsync, success } from "./result";
 
-const updateUserArgSchema = v.tuple([v.string(), userSchema()]);
+const updateUserArgsSchema = v.tuple([v.string(), userSchema()]);
 
-export const updateUser = withValidate(updateUserArgSchema)(
+export const updateUser = withValidate(updateUserArgsSchema)(
   async (id, user): ResultAsync<User, string> => {
     //   ^ id: string, user: User
     // バリデーション済みかつ、引数の型が推論されている！
@@ -104,13 +104,13 @@ import { User, userSchema } from "@/domain/types";
 import { ResultAsync, success, failure } from "@/lib/result";
 import * as v from "valibot";
 
-const updateUserArgSchema = v.tuple(
+const updateUserArgsSchema = v.tuple(
   [v.string(), userSchema()]
 );
 
 export const updateUser = async (...args: [id: string, user: User]): ResultAsync<User, string> => {
   // 引数の検証
-  const validationResult = v.safeParse(updateUserArgSchema, args);
+  const validationResult = v.safeParse(updateUserArgsSchema, args);
   if (!validationResult.success) {
     return failure("Invalid arguments");
   }
@@ -185,11 +185,11 @@ import { ResultAsync, success, failure } from "@/lib/result";
 import { withValidate } from "@/lib/decorators";
 import * as v from "valibot";
 
-const updateUserArgSchema = v.tuple(
+const updateUserArgsSchema = v.tuple(
   [v.string(), userSchema()]
 );
 
-export const updateUser = withValidate(updateUserArgSchema)(async (id, user): ResultAsync<User, string> => {
+export const updateUser = withValidate(updateUserArgsSchema)(async (id, user): ResultAsync<User, string> => {
   try {
     const updatedUser = await db.user.update({
       where: { id },
