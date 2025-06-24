@@ -1,5 +1,5 @@
 ---
-title: "React Tokyo トレンドレポート #5 : 開発環境を自慢する小部屋"
+title: "React Tokyo トレンドレポート #6 : 開発環境を自慢する小部屋"
 emoji: "🖥️"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: [reacttokyo]
