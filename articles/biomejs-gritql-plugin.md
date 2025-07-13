@@ -101,9 +101,7 @@ GritQLでは、`function`を使って関数を定義可能です。
       ...,
     }
   },
-  "plugins": {
-    "grit": ["biome-rules/no-lowercase-jsx-components.grit"]
-  }
+	"plugins": ["rules/no-lowercase-jsx-components.grit"]
 }
 ```
 
