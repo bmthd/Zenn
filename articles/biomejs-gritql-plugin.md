@@ -1,5 +1,5 @@
 ---
-title: "BiomeのGritQLプラグインでDOM要素の直接利用を禁止してみた"
+title: "Biome2.0のGritQLプラグインでDOM要素の直接利用を禁止してみた"
 emoji: "🔧"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["biome", "gritql",  "javascript", "typescript", "claudecode"]
