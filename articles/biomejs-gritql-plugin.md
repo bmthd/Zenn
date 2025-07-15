@@ -46,31 +46,18 @@ biome-rules
 ```grit
 language js
 
-function register($tag) {
+or {
+  `<$tag />`,
+  `<$tag $props />`,
+  `<$tag>$body</$_>`,
+  `<$tag $props>$body</$_>`
+} where {
+  $tag <: r"^[a-z][a-z0-9-]*$",
   register_diagnostic(
     span = $tag,
     message = "Do not use direct DOM elements. Use the project's design system instead.",
     severity = "error"
   )
-}
-
-or {
-  `<$tag>$body</$_>` where {
-    $tag <: r"^[a-z][a-z0-9-]*$",
-    register($tag)
-  },
-  `<$tag />` where {
-    $tag <: r"^[a-z][a-z0-9-]*$",
-    register($tag)
-  },
-  `<$tag $props />` where {
-    $tag <: r"^[a-z][a-z0-9-]*$",
-    register($tag)
-  },
-  `<$tag $props>$body</$_>` where {
-    $tag <: r"^[a-z][a-z0-9-]*$",
-    register($tag)
-  }
 }
 ```
 
@@ -80,15 +67,14 @@ or {
 
 このGritQLクエリは以下の動作をします。
 
-1. **正規表現パターン**: `r"^[a-z][a-z0-9-]*$"`で小文字で始まるHTMLタグを検出
-2. **複数のJSXパターン**: 自己閉じタグとコンテンツありタグの両方に対応
+1. **or句で複数のJSXパターンを定義**: 自己閉じタグとコンテンツありタグの両方に対応
+2. **where句で正規表現パターン**: `r"^[a-z][a-z0-9-]*$"`で小文字で始まるHTMLタグを検出
 3. **エラーメッセージ**: デザインシステムの使用を促すメッセージを表示
 
 単体のタグ、閉じタグあり、propsの有無により認識してくれない事があったため、`or`を使って複数のパターンを定義しました。
 
 GritQLでは、`function`を使って関数を定義可能です。
 `register_diagnostic`という関数はBiomeが提供している関数で、これを使うことで、Biomeにエラー情報の登録ができます。
-全てのパターンで同じメッセージを通知したいため、関数として定義して共通化を行っています。
 
 ### Biome設定での有効化
 
