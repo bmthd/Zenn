@@ -95,7 +95,7 @@ function* filterLargeCompletedOrders(orders: Iterable<Order>, limit: number): Ge
 }
 
 // ✅ 可読性とシンプルさを優先した例（limit = 100）
-function processOrderData(orders): Order[] {
+function processOrderData(orders: Order[], limit: number): Order[] {
   return orders
     .filter(order => order.status === 'completed')
     .map(order => ({
@@ -103,7 +103,7 @@ function processOrderData(orders): Order[] {
       amount: Math.round(order.amount / 1.1)
     }))
     .filter(order => order.amount > 10_000)
-    .slice(0, 100);
+    .slice(0, limit);
 }
 ```
 
