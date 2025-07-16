@@ -23,7 +23,7 @@ published: true
 
 以前はdivの方がわずかに速いという話もありました。
 しかし、**その差は数ミリ秒以下**であり、実際のアプリケーションではほとんど影響しません。
-ちなみに現在はReactの最適化により、Fragmentの方が速いらしいです。
+ちなみに現在はReactの最適化により、Fragmentの方が速いとされています。
 つまり、**特定の実装・特定の環境における一時的な差を根拠にするのは危険**です。
 
 ### Fragmentを選ぶべき理由
@@ -38,9 +38,9 @@ import { TextField } from './ui/TextField';
 // ❌ パフォーマンスを理由にdivを使う
 function UserProfileField({ user }) {
   return (
-    <div> {/* 意味のないwrapper div */}
-      <TextField label="ユーザー名" value={user.name} />
-      <TextField label="メールアドレス" value={user.email} />
+    <div> {/* 意味のないdiv */}
+      <TextField label="ユーザー名" name={user.name} />
+      <TextField label="メールアドレス" name={user.email} />
     </div>
   );
 }
@@ -49,8 +49,8 @@ function UserProfileField({ user }) {
 function UserProfileField({ user }) {
   return (
     <> {/* フィールド要素のグループ化のみが目的 */}
-      <TextField label="ユーザー名" value={user.name} />
-      <TextField label="メールアドレス" value={user.email} />
+      <TextField label="ユーザー名" name={user.name} />
+      <TextField label="メールアドレス" name={user.email} />
     </>
   );
 }
@@ -94,7 +94,7 @@ function* filterLargeCompletedOrders(orders: Iterable<Order>, limit: number): Ge
   }
 }
 
-// ✅ 可読性とシンプルさを優先した例
+// ✅ 可読性とシンプルさを優先した例（limit = 100）
 function processOrderData(orders): Order[] {
   return orders
     .filter(order => order.status === 'completed')
