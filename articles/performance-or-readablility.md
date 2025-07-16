@@ -134,18 +134,19 @@ barrel export の最大のメリットは、**インポートが一箇所に集�
 
 ```typescript
 // ❌ 個別インポートで散らかった例
-import { GetUserProfileUseCase } from '../domain/usecases/user/GetUserProfileUseCase';
-import { ValidateUserUseCase } from '../domain/usecases/user/ValidateUserUseCase';
-import { SendNotificationUseCase } from '../domain/usecases/notification/SendNotificationUseCase';
-import { UserRepository } from '../infrastructure/repositories/UserRepository';
-import { NotificationRepository } from '../infrastructure/repositories/NotificationRepository';
-import { EmailService } from '../infrastructure/services/EmailService';
+// usecases/CreateUserUseCase.ts
+import { ValidationComponent } from '../components/validation/ValidationComponent';
+import { NotificationComponent } from '../components/notification/NotificationComponent';
+import { LoggingComponent } from '../components/logging/LoggingComponent';
+import { CacheComponent } from '../components/cache/CacheComponent';
+import { UserService } from '../services/UserService';
+import { EmailService } from '../services/EmailService';
+import { AuditService } from '../services/AuditService';
 
-// ✅ barrel exportでレイヤーを明確化
-import { GetUserProfileUseCase, ValidateUserUseCase } from '../domain/usecases/user';
-import { SendNotificationUseCase } from '../domain/usecases/notification';
-import { UserRepository, NotificationRepository } from '../infrastructure/repositories';
-import { EmailService } from '../infrastructure/services';
+// ✅ barrel exportで構造を明確化
+// usecases/CreateUserUseCase.ts
+import { ValidationComponent, NotificationComponent, LoggingComponent, CacheComponent } from '../components';
+import { UserService, EmailService, AuditService } from '../services';
 ```
 
 ### ツリーシェイクの懸念は過去の話
