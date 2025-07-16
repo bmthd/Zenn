@@ -12,7 +12,7 @@ published: true
 
 ---
 
-## 1. React.Fragment vs div :速さの幻想 
+## 1. React.Fragment vs div : 速さの幻想 
 
 > React.Fragment(`<></>`)はdivよりもパフォーマンスが悪いから使うべきではない
 
@@ -31,6 +31,30 @@ published: true
 React.Fragmentは「要素をグループ化したいが、DOMには何も追加したくない」という**明確な意図**を持っています。
 これをわざわざdivに変えることは、意味のない余計なDOMノードを追加することになり、CSS設計やアクセシビリティの面でも悪影響を及ぼすことになります。
 要素をグループ化したいだけであれば、Fragmentを使いましょう。
+
+```tsx
+import { TextField } from './ui/TextField';
+
+// ❌ パフォーマンスを理由にdivを使う
+function UserProfileField({ user }) {
+  return (
+    <div> {/* 意味のないwrapper div */}
+      <TextField label="ユーザー名" value={user.name} />
+      <TextField label="メールアドレス" value={user.email} />
+    </div>
+  );
+}
+
+// ✅ 意図を明確にしたFragment
+function UserProfileField({ user }) {
+  return (
+    <> {/* フィールド要素のグループ化のみが目的 */}
+      <TextField label="ユーザー名" value={user.name} />
+      <TextField label="メールアドレス" value={user.email} />
+    </>
+  );
+}
+```
 
 ---
 
@@ -52,6 +76,36 @@ React.Fragmentは「要素をグループ化したいが、DOMには何も追加
 
 このような言葉があるように、パフォーマンス改善は、**不都合が実際に発生してからで十分**です。
 プロファイルを取っても差がほぼ検出できないような改善は、"気づかれない最適化"にすぎず、むしろ可読性を犠牲にすることで負債になります。
+
+```ts
+// ❌ パフォーマンスを理由に可読性を犠牲にした例
+function* filterLargeCompletedOrders(orders: Iterable<Order>, limit: number): Generator<Order> {
+  let count = 0
+  for (const order of orders) {
+    if (order.status !== 'completed') continue
+
+    const taxExcluded = Math.round(order.amount / 1.1)
+    if (taxExcluded <= 10_000) continue
+
+    yield { ...order, amount: taxExcluded }
+
+    count++
+    if (count >= limit) return
+  }
+}
+
+// ✅ 可読性とシンプルさを優先した例
+function processOrderData(orders): Order[] {
+  return orders
+    .filter(order => order.status === 'completed')
+    .map(order => ({
+      ...order,
+      amount: Math.round(order.amount / 1.1)
+    }))
+    .filter(order => order.amount > 10_000)
+    .slice(0, 100);
+}
+```
 
 ---
 
@@ -77,6 +131,22 @@ barrel export の最大のメリットは、**インポートが一箇所に集�
 * 複数ファイルから個別にimportするよりも、**import文が簡潔かつ整理され、ノイズが減って可読性が高まる**
 
 これは特にドメインやレイヤー単位の設計において、**意図したまとまりを保つのに有効**であり、チーム開発やリファクタリング時のメンテナンス性にも貢献します。
+
+```typescript
+// ❌ 個別インポートで散らかった例
+import { GetUserProfileUseCase } from '../domain/usecases/user/GetUserProfileUseCase';
+import { ValidateUserUseCase } from '../domain/usecases/user/ValidateUserUseCase';
+import { SendNotificationUseCase } from '../domain/usecases/notification/SendNotificationUseCase';
+import { UserRepository } from '../infrastructure/repositories/UserRepository';
+import { NotificationRepository } from '../infrastructure/repositories/NotificationRepository';
+import { EmailService } from '../infrastructure/services/EmailService';
+
+// ✅ barrel exportでレイヤーを明確化
+import { GetUserProfileUseCase, ValidateUserUseCase } from '../domain/usecases/user';
+import { SendNotificationUseCase } from '../domain/usecases/notification';
+import { UserRepository, NotificationRepository } from '../infrastructure/repositories';
+import { EmailService } from '../infrastructure/services';
+```
 
 ### ツリーシェイクの懸念は過去の話
 
