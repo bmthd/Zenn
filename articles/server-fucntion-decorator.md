@@ -99,21 +99,18 @@ Next.jsではServer FunctionsのURLが難読化されており、意図せずAPI
 ```ts:server.ts
 "use server";
 import { db } from "@/lib/db";
-import { User, userSchema } from "@/domain/types";
+import { User, isUser } from "@/domain/types";
 import { ResultAsync, success, failure } from "@/lib/result";
-import * as v from "valibot";
-
-const updateUserArgsSchema = v.tuple(
-  [v.string(), userSchema()]
-);
-
-export const updateUser = async (...args: [id: string, user: User]): ResultAsync<User, string> => {
-  // 引数の検証
-  const validationResult = v.safeParse(updateUserArgsSchema, args);
-  if (!validationResult.success) {
+export const updateUser = async (id: string, user: User): ResultAsync<User, string> => {
+  // 引数の存在チェック
+  if (!id || !user) {
     return failure("Invalid arguments");
   }
-  const [id, user] = validationResult.data;
+
+  // 型の検証
+  if (typeof id !== "string" || !isUser(user)) {
+    return failure("Invalid argument types");
+  }
 
   try {
     const updatedUser = await db.user.update({
