@@ -75,8 +75,6 @@ export const updateUser = withValidate(
 });
 ```
 
-![型推論が効いているVSCodeの例](/images/server-function-decorator/image.png)
-
 ## なぜバリデーションが必要なのか？
 
 厳密に言えば、Server Functionsの中でもデータの書き込みを伴わないGET系の処理においてはバリデーションを行う必要はありません。
