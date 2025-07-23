@@ -48,9 +48,9 @@ language js
 
 or {
   `<$tag />`,
-  `<$tag $props />`,
-  `<$tag>$body</$_>`,
-  `<$tag $props>$body</$_>`
+  `<$tag $_ />`,
+  `<$tag>$_</$_>`,
+  `<$tag $_>$_</$_>`
 } where {
   $tag <: r"^[a-z][a-z0-9-]*$",
   register_diagnostic(
