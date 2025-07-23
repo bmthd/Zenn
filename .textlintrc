@@ -1,5 +1,6 @@
 {
   "rules":{
-    "textlint-rule-preset-ja-technical-writing":true
+    "textlint-rule-preset-ja-technical-writing":true,
+    "textlint-rule-preset-ai-writing":true
   }
 }
