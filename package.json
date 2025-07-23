@@ -1,0 +1,14 @@
+{
+  "name": "zenn",
+  "module": "index.ts",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "lefthook": "^1.12.2",
+    "textlint": "^15.2.0"
+  },
+  "scripts": {
+    "lint": "textlint .",
+    "prepare": "lefthook install"
+  },
+  "type": "module"
+}
