@@ -46,4 +46,4 @@ pre-commit:
   jobs:
     - name: textlint
       glob: "**/*.md"
-      run: npx textlint {staged_files}
+      run: bunx textlint {staged_files}
