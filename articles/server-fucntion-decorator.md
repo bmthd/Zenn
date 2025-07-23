@@ -57,26 +57,23 @@ import { withValidate } from "./decorators";
 import { type User, userSchema } from "./domain";
 import { failure, type ResultAsync, success } from "./result";
 
-const updateUserArgsSchema = v.tuple([v.string(), userSchema()]);
-
-export const updateUser = withValidate(updateUserArgsSchema)(
-  async (id, user): ResultAsync<User, string> => {
-    //   ^ id: string, user: User
-    // バリデーション済みかつ、引数の型が推論されている！
-    try {
-      const updatedUser = await db.user.update({
-        where: { id },
-        data: user,
-      });
-      return success(updatedUser);
-    } catch {
-      return failure("Failed to update user");
-    }
-  },
-);
+export const updateUser = withValidate(
+  v.string(),
+  userSchema(),
+)(async (id, user): ResultAsync<User, string> => {
+  //     ^? (id: string, user: User)
+  // バリデーション済みかつ、引数の型が推論されている！
+  try {
+    const updatedUser = await db.user.update({
+      where: { id },
+      data: user,
+    });
+    return success(updatedUser);
+  } catch (error) {
+    return failure("Failed to update user");
+  }
+});
 ```
-
-![型推論が効いているVSCodeの例](/images/server-function-decorator/image.png)
 
 ## なぜバリデーションが必要なのか？
 
@@ -100,21 +97,18 @@ Next.jsではServer FunctionsのURLが難読化されており、意図せずAPI
 ```ts:server.ts
 "use server";
 import { db } from "@/lib/db";
-import { User, userSchema } from "@/domain/types";
+import { User, isUser } from "@/domain/types";
 import { ResultAsync, success, failure } from "@/lib/result";
-import * as v from "valibot";
-
-const updateUserArgsSchema = v.tuple(
-  [v.string(), userSchema()]
-);
-
-export const updateUser = async (...args: [id: string, user: User]): ResultAsync<User, string> => {
-  // 引数の検証
-  const validationResult = v.safeParse(updateUserArgsSchema, args);
-  if (!validationResult.success) {
+export const updateUser = async (id: string, user: User): ResultAsync<User, string> => {
+  // 引数の存在チェック
+  if (!id || !user) {
     return failure("Invalid arguments");
   }
-  const [id, user] = validationResult.data;
+
+  // 型の検証
+  if (typeof id !== "string" || !isUser(user)) {
+    return failure("Invalid argument types");
+  }
 
   try {
     const updatedUser = await db.user.update({
@@ -139,7 +133,7 @@ export const updateUser = async (...args: [id: string, user: User]): ResultAsync
 3. バリデーション処理が煩雑
    → エラー処理の記載漏れの原因に
 
-## ベストプラクティス：Decoratorを使った引数検証
+## ベストプラクティス：Decoratorパターンを使った引数検証
 
 そこで、Server Functionsをラップするdecorator関数を作成することで、引数の検証と型推論を一体化させることができます。
 
@@ -147,10 +141,12 @@ export const updateUser = async (...args: [id: string, user: User]): ResultAsync
 import * as v from "valibot";
 import { failure, type ResultAsync } from "./result";
 
-export const withValidate = <T extends v.TupleSchema<v.TupleItems, any>>(schema: T) => {
-  return <R>(handler: (...args: v.InferOutput<T>) => ResultAsync<R, string>) => {
-    return async (...args: v.InferOutput<T>): ResultAsync<R, string> => {
-      const validationResult = v.safeParse(schema, args);
+export const withValidate = <T extends v.TupleItems>(...schemas: T) => {
+  return <R>(
+    handler: (...args: v.InferOutput<v.TupleSchema<T, any>>) => ResultAsync<R, string>,
+  ) => {
+    return async (...args: v.InferOutput<v.TupleSchema<T, any>>): ResultAsync<R, string> => {
+      const validationResult = v.safeParse(v.tuple(schemas), args);
       if (!validationResult.success) {
         return failure("Invalid arguments");
       }
@@ -160,7 +156,7 @@ export const withValidate = <T extends v.TupleSchema<v.TupleItems, any>>(schema:
 };
 ```
 
-decorator関数に馴染みのない方もいるかもしれません。
+decoratorパターンに馴染みのない方もいるかもしれません。
 簡単に説明すると、関数やクラスの振る舞いを変更するための関数です。
 ベースとなる関数を引数に取り、その関数の前後に処理を追加することができます。
 
@@ -185,11 +181,11 @@ import { ResultAsync, success, failure } from "@/lib/result";
 import { withValidate } from "@/lib/decorators";
 import * as v from "valibot";
 
-const updateUserArgsSchema = v.tuple(
-  [v.string(), userSchema()]
-);
-
-export const updateUser = withValidate(updateUserArgsSchema)(async (id, user): ResultAsync<User, string> => {
+export const updateUser = withValidate(
+  v.string(),
+  userSchema(),
+)(async (id, user): ResultAsync<User, string> => {
+  //     ^? (id: string, user: User)
   try {
     const updatedUser = await db.user.update({
       where: { id },
