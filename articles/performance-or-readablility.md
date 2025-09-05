@@ -10,6 +10,10 @@ published: true
 そのような主張は一見もっともらしく聞こえますが、それが長期的に見て適切な判断かどうかは冷静に見直す必要があります。
 この記事では、こうした「気付けない程度の最適化」を理由に、**可読性・意味論を切り捨てることの危険性**について解説します。
 
+:::message
+事例はReactやTypeScriptを中心にしていますが、他の言語やフレームワークにも共通する考え方です。
+:::
+
 ---
 
 ## 1. React.Fragment vs div : 速さの幻想 
@@ -157,6 +161,57 @@ import { UserService, EmailService, AuditService } from '../services';
 * TypeScriptとESMを正しく併用していれば、**tree shaking が効かないという状況はほぼ発生しません**
 
 そのため、**この懸念を主な理由として barrel export を避けるのは、技術的にも時代遅れ**な判断と言えるでしょう。
+
+## 4. メモ化はオーバーヘッドがあるから無闇に使わないべきか
+
+> `useMemo` はパフォーマンスが気になるときだけ使えばいい
+
+この考え方は、`useMemo` の役割を半分しか見ていません。`useMemo` はパフォーマンス最適化のためだけにあるのではなく、**値が「派生値」であることを示す意味論的な役割**を持っています。
+
+### `useMemo` は派生値であるという宣言
+
+`useMemo` は、ある値が props や state から計算されて作られる**派生的なデータ**であることをコード上で明示します。
+これを使わないということは、その値が「毎回新しく生成される一時的な変数」なのか、それとも「特定の入力から常に同じ結果が導かれるべき値」なのかが曖昧になることを意味します。
+
+パフォーマンスを理由に `useMemo` を省略すると、この「派生値」という重要な意味がコードから失われ、他の開発者がその値を扱う際に誤解を生む可能性があります。
+例えば、propsが同じなら再計算の必要がないはずの値が`useMemo`なしで実装されていると、毎回新しいインスタンスが作られてしまい、意図しない再レンダリングを引き起こす原因にもなりえます。
+
+### 意味を伝えるための `useMemo`
+
+`useMemo` を使うことで、その値がどの state や props に依存しているのかが依存配列 `[]` によって明確になります。
+これにより、コンポーネント内のデータの流れが追いやすくなり、可読性とメンテナンス性が向上します。
+
+```tsx
+// ❌ 派生値であることが分かりにくい例
+function UserProfile({ user }) {
+  // この値がuserから派生していることが読み取りにくい
+  // userが変わらない限り同じはず、という意図が伝わらない
+  const userPermissions = calculatePermissions(user.roles);
+
+  return <PermissionsDisplay permissions={userPermissions} />;
+}
+
+// ✅ useMemoで派生値であることを明示
+function UserProfile({ user }) {
+  // user.rolesから派生した値であることを明示
+  // user.rolesが変わらない限り再計算されない、という意図が明確
+  const userPermissions = useMemo(() => {
+    return calculatePermissions(user.roles);
+  }, [user.roles]);
+
+  return <PermissionsDisplay permissions={userPermissions} />;
+}
+```
+
+`useMemo` は「パフォーマンスが悪くなったから追加するおまじない」ではありません。
+「props や state から値を計算して作り出す」という当たり前の処理を、意味論的に正しく表現するための基本的なツールなのです。
+パフォーマンス上のメリットは、その結果として得られる副産物と捉えるべきです。
+
+**参考記事**
+
+https://qiita.com/uhyo/items/59124425ca1dee3da891
+
+---
 
 ## 可読性とパフォーマンスはトレードオフではないが、衝突する場合もある
 
