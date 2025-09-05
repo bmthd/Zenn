@@ -3,7 +3,7 @@ title: "TanStack DB ~状態管理の新しい考え方~"
 emoji: "🗃️"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [tanstackdb,react,typescript,javascript]
-published: false
+published: true
 ---
 
 ## はじめに
@@ -11,6 +11,12 @@ published: false
 [TanStack](https://tanstack.com/) が新たに公開した **TanStack DB** について調べたので、その概要を紹介します。
 
 https://tanstack.com/db/latest
+
+:::message
+こちらの記事はReact Tokyo ミートアップ #8にて発表させていただいた内容をより深堀りした記事となっています。
+登壇資料はこちらです。
+https://speakerdeck.com/bmthd/tanstack-db-zhuang-tai-guan-li-noxin-siikao-efang
+:::
 
 ## TanStack DBとは
 
@@ -25,7 +31,7 @@ TanStack DBはこれを逆転させ、**フロントエンドがデータの主�
 
 ## 楽観的更新の自動化
 
-TanStack Queryの更新はデフォルトで悲観的更新です。
+TanStack QueryはデフォルトではUIの楽観的更新をしません。
 つまり、失敗することを前提に、成功した場合だけUIが更新されるということです。
 楽観的更新に対応したい場合は手動で仮の更新、ロールバック、再フェッチを実装する必要がありました。
 
@@ -52,8 +58,11 @@ const mutation = useMutation({
 TanStack DBでは、**ローカルのCollectionを直接更新するだけで、楽観的更新が自動的に行われる** ため、上記のような複雑なコードを書く必要がありません。
 
 ```ts: TanStack DBによる楽観的更新の例
-const addTodo = (newTodo: TODO) => {
-  todosCollection.insert(newTodo); // これだけで楽観的更新が完了
+const updateTodo = async (id: string, newTodo: TODO) => {
+  await todosCollection.update(id, (draft) => {
+    draft = newTodo; // これだけで楽観的更新が完了
+  });
+  await tx.isPersisted.promise;
 };
 ```
 
@@ -63,7 +72,9 @@ const addTodo = (newTodo: TODO) => {
 ## 永続化層を自由に差し替え可能
 
 フロントエンドでストレージを扱う場合、localStorageやIndexedDBなど様々な選択肢があります。
-例えば、IndexedDBの場合はDexie.js、GraphQLの場合はApollo Client、FirebaseはFirebase SDKなどのラッパーライブラリを使用するのが一般的です。
+また、バックエンドと同期する場合はSupabaseやFirebase、GraphQLなどのSaaSを利用することもあります。
+そして、それらをフロントエンドから利用する場合はラッパーライブラリを使用するのが一般的です。
+例えば、IndexedDBの場合はDexie.js、GraphQLの場合はApollo Client、FirebaseはFirebase SDKなどです。
 これらはそれぞれに独自のAPIのため、使い方が異なり、学習コストがかかります。
 TanStack DBは特定のストレージ技術に依存しません。アダプタを差し替えることで、様々なストレージに対応できます。
 
@@ -76,18 +87,19 @@ TanStack DBは特定のストレージ技術に依存しません。アダプタ
 また、標準でサポートされているアダプタ以外にも、独自にアダプタを実装できます。
 https://tanstack.com/db/latest/docs/guides/collection-options-creator
 
-将来的にはSupabase, IndexedDB, DuckDB Wasmなども使えるようになることでしょう。
+Supabase, IndexedDB, DuckDB Wasmなどのアダプタも技術的に実装が可能なため、登場が期待されます。
 
-### バックエンド実装が不要になるかも
+### バックエンド実装を簡素化できるかも
 
 TanStack DBを使えば、バックエンドはデータベーススキーマの設計と、Row Level Security（RLS）を設定するだけで済む可能性があります。
+上記で上げた、Electric SQLとTrailBaseは、**フロントエンドのDBとバックエンドのDBを自動的に同期**する仕組みを提供しています。
 従来も、SupabaseやGraphQLのHasura, PostGraphileなどを使えば同様のことが可能でした。
 
 しかし、これらの技術はそれぞれに独自のAPIがあり、学習コストが発生してしまいます。
 フロントエンド側のロジックが特定のSaaSに依存し、将来UIライブラリやバックエンドのどちらかを変更したいとなった場合、移行が困難になるリスクがあります。
 TanStack DBであれば、アダプタを差し替えるだけで済むため、特定のストレージ技術に依存しないで済みます。
 どのバックエンドを採用していたとしても、フロントエンド側の実装は変わりません。
-しかも、UIライブラリもマルチフレームワークに対応しているため、ReactからSvelteに乗り換えたくなった場合でも全く同じ実装を使い回せます。
+しかも、UIライブラリもマルチフレームワークに対応しているため、ReactからSvelteに乗り換えたくなった場合でも差し替えが容易です。
 
 ---
 
@@ -109,7 +121,7 @@ npm install @tanstack/db @tanstack/react-db
 まずはデータを永続化するためのCollectionを定義します。
 
 ```ts
-import { createCollection } from "@tanstack/db";
+import { createCollection, localStorageCollectionOptions } from "@tanstack/db";
 import * as v from "valibot"; 
 
 const drawCalcSchema = v.object({
@@ -253,14 +265,46 @@ const CalculationItem = ({ calculationId }: { calculationId: string }) => {
 
 このように、コンポーネントの中で直接クエリを書き、部分的に購読可能です。
 
-## 実際に触ってみた
+---
+
+## おまけ
+
+### 状態管理のベストプラクティスを変える
+
+これまでデータフェッチやバックエンドとの同期を主軸に書いてきましたが、ローカルな状態管理もTanStack DBが置き換えてしまうのではと考えています。
+今までJotaiやZustandなどで状態管理していた部分です。
+これらは複雑なデータ構造を表現しようとすると、状態の正規化やセレクターの実装が必要になり、認知負荷が高くなりがちです。
+データのあるべき姿をスキーマで定義し、操作をSQLライクなクエリで行うことができるため、**状態管理のベストプラクティスを大きく変える可能性があります**。
+そして、それらをそのままバックエンドに同期できる点も見逃せません。
+
+### 想定されるユースケース
+
+では一体どんな場面で使うと効果的なのか、少し考えてみました。
+
+1. **リアルタイム性が求められるアプリケーション**
+
+   チャットアプリやコラボレーションツールなど、データの変更が即座に反映されることが重要な場合。
+   例えば、MiroやFigma、Google Spreadsheetのような共同編集ツール。
+
+2. **オフラインでの利用が求められるアプリケーション**
+
+   ネットワークが不安定な環境でも快適に動作することを求められる場合。
+   例えば、建設業、フィールドワーク、医療現場など。
+   
+3. **大容量のデータの分析や可視化が求められるアプリケーション**
+
+   大量のデータを効率的に処理し、ユーザーに分かりやすく提示することが求められる場合。
+   例えば、ダッシュボードやBIツール、株取引アプリでの利用など。
+
+### 実際に触ってみた
 
 Claude Codeと一緒に既存アプリをTanStack DBに載せ替えてみました。
 
 * 公開デモ: [https://tcg-tool.pages.dev/draw-calc-db](https://tcg-tool.pages.dev/draw-calc-db)
 * ソースコード: [https://github.com/bmthd/tcg-tool/pull/3/files](https://github.com/bmthd/tcg-tool/pull/3/files)
 
-ぜひ動作感を体験してみてください。
+このアプリケーションはlocalStorageのみにデータを保存するシンプルな計算アプリですが、状態管理アプリを採用せずにTanStack DBだけで実装できました。
+書き心地が良く、状態管理とデータ保管が統合されているため、コードがシンプルになりました。
 
 ---
 
@@ -269,7 +313,5 @@ Claude Codeと一緒に既存アプリをTanStack DBに載せ替えてみまし�
 * TanStack DBは「**フロントエンド中心のデータ設計**」を加速する
 * すべてのServer Stateの抽象化レイヤーになりうる
 * 状態管理とデータ保管を統合し、バックエンド設計にも影響を与える可能性がある
-
----
 
 今後のアップデートでどのように進化していくか非常に楽しみです。
