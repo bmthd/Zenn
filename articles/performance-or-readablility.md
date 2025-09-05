@@ -191,12 +191,12 @@ function ItemSearch({ items }: { items: string[] }) {
   const filteredItems = items.filter(item => item.toLowerCase().includes(query.toLowerCase()));
 
   return (
-    <div>
+    <>
       <input type="search" value={query} onChange={e => setQuery(e.target.value)} />
       <ul>
         {filteredItems.map(item => <li key={item}>{item}</li>)}
       </ul>
-    </div>
+    </>
   );
 }
 
@@ -211,12 +211,12 @@ function ItemSearch({ items }: { items: string[] }) {
   }, [items, query]);
 
   return (
-    <div>
+    <>
       <input type="search" value={query} onChange={e => setQuery(e.target.value)} />
       <ul>
         {filteredItems.map(item => <li key={item}>{item}</li>)}
       </ul>
-    </div>
+    </>
   );
 }
 ```
