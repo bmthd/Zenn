@@ -91,7 +91,8 @@ Supabase, IndexedDB, DuckDB Wasmなどのアダプタも技術的に実装が可
 
 ### バックエンド実装を簡素化できるかも
 
-TanStack DBを使えば、バックエンドはデータベーススキーマの設計と、Row Level Security（RLS）を設定するだけで済む可能性があります。
+フロントエンドが欲しいデータを直接クエリできるため、バックエンドの実装を簡素化できる可能性があります。
+TanStack DBを使えば、バックエンドがやるべきことはデータベーススキーマの設計と、Row Level Security（RLS）の設定、認証の実装程度に留められます。
 上記で上げた、Electric SQLとTrailBaseは、**フロントエンドのDBとバックエンドのDBを自動的に同期**する仕組みを提供しています。
 従来も、SupabaseやGraphQLのHasura, PostGraphileなどを使えば同様のことが可能でした。
 
