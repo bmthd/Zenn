@@ -110,6 +110,16 @@ npm install @tanstack/db @tanstack/react-db
 
 ```ts
 import { createCollection } from "@tanstack/db";
+import * as v from "valibot"; 
+
+const drawCalcSchema = v.object({
+  id: v.string(),
+  name: v.string(),
+  gameTemplate: v.string(),
+  result: v.string(),
+  createdAt: v.date(),
+  updatedAt: v.date(),
+});
 
 export const drawCalcCollection = createCollection(
   localStorageCollectionOptions({
@@ -121,6 +131,16 @@ export const drawCalcCollection = createCollection(
 );
 
 // もしくは
+
+type DrawCalc = {
+  id: string;
+  name: string;
+  gameTemplate: string;
+  result: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export const drawCalcCollection = createCollection(
   localStorageCollectionOptions<DrawCalc>({
     storageKey: "tcg-tool-draw-calculations",
