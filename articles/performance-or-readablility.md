@@ -183,23 +183,41 @@ import { UserService, EmailService, AuditService } from '../services';
 
 ```tsx
 // ❌ 派生値であることが分かりにくい例
-function UserProfile({ user }) {
-  // この値がuserから派生していることが読み取りにくい
-  // userが変わらない限り同じはず、という意図が伝わらない
-  const userPermissions = calculatePermissions(user.roles);
+function ItemSearch({ items }: { items: string[] }) {
+  const [query, setQuery] = useState('');
 
-  return <PermissionsDisplay permissions={userPermissions} />;
+  // queryが変わるたびにフィルタリングが走る
+  // `filteredItems`が`query`と`items`からの派生値であることがコード上読み取りにくい
+  const filteredItems = items.filter(item => item.toLowerCase().includes(query.toLowerCase()));
+
+  return (
+    <div>
+      <input type="search" value={query} onChange={e => setQuery(e.target.value)} />
+      <ul>
+        {filteredItems.map(item => <li key={item}>{item}</li>)}
+      </ul>
+    </div>
+  );
 }
 
 // ✅ useMemoで派生値であることを明示
-function UserProfile({ user }) {
-  // user.rolesから派生した値であることを明示
-  // user.rolesが変わらない限り再計算されない、という意図が明確
-  const userPermissions = useMemo(() => {
-    return calculatePermissions(user.roles);
-  }, [user.roles]);
+function ItemSearch({ items }: { items: string[] }) {
+  const [query, setQuery] = useState('');
 
-  return <PermissionsDisplay permissions={userPermissions} />;
+  // `query`と`items`から派生した値であることを明示
+  // 依存配列のおかげで、いつ再計算されるかが明確になる
+  const filteredItems = useMemo(() => {
+    return items.filter(item => item.toLowerCase().includes(query.toLowerCase()));
+  }, [items, query]);
+
+  return (
+    <div>
+      <input type="search" value={query} onChange={e => setQuery(e.target.value)} />
+      <ul>
+        {filteredItems.map(item => <li key={item}>{item}</li>)}
+      </ul>
+    </div>
+  );
 }
 ```
 
