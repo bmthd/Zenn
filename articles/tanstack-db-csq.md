@@ -31,7 +31,7 @@ TanStack DBはこれを逆転させ、**フロントエンドがデータの主�
 
 ### 楽観的更新の自動化
 
-TanStack QueryはデフォルトではUIの楽観的更新をしません。
+同じTanStackシリーズのTanStack QueryはデフォルトではUIの楽観的更新をしません。
 つまり、失敗することを前提に、成功した場合だけUIが更新されるということです。
 楽観的更新に対応したい場合は手動で仮の更新、ロールバック、再フェッチを実装する必要がありました。
 
@@ -247,7 +247,8 @@ const CalculationList = () => {
 const CalculationItem = ({ calculationId }: { calculationId: string }) => {
   const { data } = useLiveQuery((q) =>
     q.from({ calculations: calculationsCollection })
-      .where(({ calculations }) => eq(calculations.id, calculationId)), // 特定のidのCollectionの変更のみに反応する
+      // 特定のidのCollectionの変更のみに反応する
+      .where(({ calculations }) => eq(calculations.id, calculationId)), 
   );
 
   const [calculation] = data
