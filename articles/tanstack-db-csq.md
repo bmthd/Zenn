@@ -15,7 +15,7 @@ https://tanstack.com/db/latest
 :::message
 こちらの記事はReact Tokyo ミートアップ #8にて発表させていただいた内容をより深堀りした記事となっています。
 登壇資料はこちらです。
-https://speakerdeck.com/bmthd/tanstack-db-zhuang-tai-guan-li-noxin-siikao-efang
+[TanStack DB ~状態管理の新しい考え方~](https://speakerdeck.com/bmthd/tanstack-db-zhuang-tai-guan-li-noxin-siikao-efang)
 :::
 
 ### TanStack DBとは
