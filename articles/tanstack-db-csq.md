@@ -62,7 +62,6 @@ const updateTodo = async (id: string, newTodo: TODO) => {
   await todosCollection.update(id, (draft) => {
     draft = newTodo; // これだけで楽観的更新が完了
   });
-  await tx.isPersisted.promise;
 };
 ```
 
