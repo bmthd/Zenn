@@ -2,7 +2,7 @@
 title: "TanStack DB ~状態管理の新しい考え方~"
 emoji: "🗃️"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [tanstackdb,react,typescript,javascript]
+topics: [tanstackdb,tanstack,react,typescript,javascript,zennfes2025free]
 published: true
 ---
 
