@@ -9,7 +9,9 @@
     }
   },
   "rules":{
-    "textlint-rule-preset-ja-technical-writing":true,
+    "preset-ja-technical-writing":{
+      "no-exclamation-question-mark": false
+    },
     "textlint-rule-preset-ai-writing":true
   }
 }
