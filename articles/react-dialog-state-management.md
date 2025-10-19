@@ -2,7 +2,7 @@
 title: "React でモーダル・ダイアログを実装するときの5つのパターン"
 emoji: "🚪"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: []
+topics: [react, typescript, frontend]
 published: false
 ---
 
@@ -18,19 +18,20 @@ React でモーダルやダイアログを実装しようとすると、状態�
 
 ### 1. 親コンポーネントに useState を持たせる
 
-公式ドキュメントでも書かれている、もっともシンプルで直感的な方法です。親が `open` state を管理し、Dialog に渡します。
+公式ドキュメントでも紹介されている、もっともシンプルな方法です。
+親が `open` state を管理し、Dialog に渡します。
 
 ```tsx
-import { Dialog, Button } from "@yamada-ui/react";
+import { Dialog, Button } from "@workspaces/ui";
 import { useState } from "react";
 
 const ConfirmDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpeen] = useState(false);
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)}>Open Dialog</Button>
-      <Dialog open={isOpen} onClose={() => setIsOpen(false)} />
+      <Button onClick={() => setOpen(true)}>Open Dialog</Button>
+      <Dialog open={open} onClose={() => setOpen(false)} />
     </>
   );
 };
@@ -41,7 +42,7 @@ const ConfirmDialog = () => {
 専用の Hook が Dialog の状態を管理し、Dialog コンポーネントを返す仕組みです。状態が Hook 内に閉じるため宣言的に扱えます。
 
 ```tsx
-import { useDisclosure, Dialog as Component, Button } from "@yamada-ui/react";
+import { useDisclosure, Dialog as Component, Button } from "@workspaces/ui";
 import { useCallback } from "react";
 
 const ConfirmDialog = () => {
@@ -71,7 +72,7 @@ const useDialog = () => {
 Dialog がハンドルを公開し、親が`Ref`経由で命令的に制御する方式です。
 
 ```tsx
-import { Dialog as Component, Button } from "@yamada-ui/react";
+import { Dialog as Component, Button } from "@workspaces/ui";
 import { useImperativeHandle, type Ref } from "react";
 
 export const ConfirmDialog = () => {
@@ -87,8 +88,7 @@ export const ConfirmDialog = () => {
 
 type ConfirmDialogProps = {
   ref: Ref<{
-    open: () => void;
-    close: () => void;
+    onOpen: () => void;
   }>;
 };
 
@@ -96,9 +96,8 @@ export const Dialog = ({ ref }: ConfirmDialogProps) => {
   const [open, { onOpen, onClose }] = useDisclosure();
 
   useImperativeHandle(ref, () => ({
-    open: onOpen,
-    close: onClose,
-  }), [onOpen, onClose]);
+    onOpen,
+  }), [onOpen]);
 
   return <Component open={open} onClose={onClose} />;
 }
@@ -109,19 +108,19 @@ export const Dialog = ({ ref }: ConfirmDialogProps) => {
 Dialog に children を関数として渡し、`open` や `close` などのコールバックを子に提供する方式です。宣言的に書けます。
 
 ```tsx
-import { Dialog, Button } from "@yamada-ui/react";
+import { Dialog, Button } from "@workspaces/ui";
 
 export const ConfirmDialog = () => {
   return (
     <Dialog.Root>
-      {({ open, close }) => (
+      {({ onOpen, onClose }) => (
         <>
-          <Button onClick={open}>Open Dialog</Button>
+          <Button onClick={onOpen}>Open Dialog</Button>
           <Dialog.Content>
             <Dialog.Body>Are you sure you want to proceed?</Dialog.Body>
             <Dialog.Footer>
-              <Button onClick={close}>Cancel</Button>
-              <Button onClick={close}>OK</Button>
+              <Button onClick={onClose}>Cancel</Button>
+              <Button onClick={onClose}>OK</Button>
             </Dialog.Footer>
           </Dialog.Content>
         </>
@@ -134,10 +133,10 @@ export const ConfirmDialog = () => {
 
 ### 5. Dialog.OpenTrigger コンポーネント方式
 
-Radix UI などで見られる設計です。`<Dialog.OpenTrigger>` や `<Dialog.Content>` などの専用サブコンポーネントを用意し、宣言的な API として提供します。UI ライブラリ的に理想的な形です。
+Radix UI などで見られる設計です。`<Dialog.OpenTrigger>` や `<Dialog.Content>` などの専用サブコンポーネントを用意し、宣言的な API として提供します。
 
 ```tsx
-import { Dialog } from "@yamada-ui/react";
+import { Dialog } from "@workspaces/ui";
 
 export const ConfirmDialog = () => {
   return (
@@ -175,13 +174,13 @@ export const ConfirmDialog = () => {
 
 ## パターンごとの比較表
 
-| パターン                      | アンマウントされてしまうか   | 再レンダリング最適       | サーバーコンポーネント対応 | 宣言的 | 可読性 | 実装難易度 |
-| ------------------------- | --- | --- | --- | --- | --- | --- |
-| 親に useState            　| ⭕ | ❌ | ❌ | ⭕| ⭕ | ⭕ |
-| Render Hooks              | ❌ | ❌ | ❌ | ⭕| ⭕ | ⭕ |
-| useImperativeHandle + ref | ⭕ | ⭕ | ❌ | ❌| ❌ | ❌ |
-| callback                  | ⭕ | ⭕ | ❌ | ⭕| ⭕ | ❌ |
-| Dialog.OpenTrigger        | ⭕ | ⭕ | ⭕ | ⭕| ⭕ | ❌ |
+| パターン                   | アンマウントされないか | 再レンダリング最適  | サーバーコンポーネント対応 | 宣言的  | 実装難易度 |
+| ------------------------- | --- | --- | --- | --- | --- | 
+| 親に useState            　| ⭕ | ❌ | ❌ | ⭕ | ⭕ |
+| Render Hooks              | ❌ | ❌ | ❌ | ⭕ | ⭕ |
+| useImperativeHandle + ref | ⭕ | ⭕ | ❌ | ❌ | ⭕ |
+| callback children          | ⭕ | ⭕ | ❌ | ⭕ | ❌ |
+| Dialog.OpenTrigger        | ⭕ | ⭕ | ⭕ | ⭕ | ❌ |
 
 ## どう選ぶか
 
