@@ -106,11 +106,21 @@ export const ButtonWithIcon = (props: ButtonWithIconProps) => {
 :::details もし同様の問題でお困りの場合
 ここに、VSCodeの一括置換に使える正規表現を用意して置きました！
 
-```
-Find: ^type\s+(\w+)\s*=\s*(\w+)\s*&\s*\{([\s\S]*?)\}
+Ctrl + Shift + FまたはCmd + Shift + Fで検索パネルを開き、正規表現を有効にしたうえで以下の設定で検索・置換できます。
 
-Replace: interface $1 extends $2 {$3}
 ```
+Find: ^(\s*)(?:export\s+|declare\s+)*type\s+([A-Za-z_$][\w$]*(?:<[^>]*>)?)\s*=\s*(.+?)\s*&\s*\{\s*\r?\n([\s\S]*?)^\1\}\s*;?
+
+Replace: $1interface $2 extends $3 {
+$4$1}
+```
+
+複数交差している場合はこちらを繰り返し適用してください。
+
+```
+Find: ^(\s*interface\b[^{]*\bextends\b[^{}]*?)\s*&\s*
+
+Replace: $1, 
 :::
 
 ## なぜ`interface`はパフォーマンスに優れるのか？
