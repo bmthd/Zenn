@@ -180,11 +180,29 @@ https://www.typescriptlang.org/docs/handbook/2/everyday-types.html?utm_source=ch
 
 大規模なOSSライブラリでは、`interface`を使いながらも可読性を高めるために、いくつかの工夫がされていました。
 
+### JSDocコメントの活用
+
 ![interface PageProps<AppRoute extends AppRoutes>にフォーカスした際、具体的な説明が記載されている](/images/interface-extends-props/nextjs.png)
 
 例えば、Next.jsの型定義では、`interface`に対してJSDocコメントを充実させることで、ホバー時に具体的な説明が表示されるようにしています。
 
 また、interface名を具体的かつ説明的に命名することで、コードを読むだけでその役割が理解できるように工夫されています。
+
+### ユーティリティ型の活用
+
+![alt text](/images/interface-extends-props/hono.png)
+
+Honoの型定義では、ユーザーに公開する直前で`Simplify<T>`というユーティリティ型を使い、ホバー時に見やすくしています。
+
+これは以下のように実装されている、継承に含まれる型を展開するための型ユーティリティです。
+
+```ts
+type Simplify<T> = { [K in keyof T]: T[K] } & {};
+```
+
+末端で一度だけの利用かつ、含まれるプロパティの数が少ない場合には有効です。
+
+
 
 このように工夫することで、`interface`の利点を活かしつつ、開発体験の向上も図ることができます。
 
