@@ -20,56 +20,20 @@ TypeScriptでコンポーネントのPropsやオブジェクトの型を定義�
 まず、なぜ多くの開発者がtypeを選びがちなのでしょうか。
 それは、開発体験の良さにあります。
 
-typeで定義した型は、VSCodeなどのエディタでホバーすると、最終的に解決された具体的な型情報がインラインで表示されます。
+`type`で定義した型は、VSCodeなどのエディタでホバーすると、最終的に解決された具体的な型情報がインラインで表示されます。
 
-例えば、ReactのPropsをtypeで定義してみましょう。
-
-```tsx
-type IconProps = {
-  size: 'small' | 'medium' | 'large';
-};
-
-type ButtonBaseProps = {
-  onClick: () => void;
-  disabled?: boolean;
-};
-
-// 交差型(&)でPropsを合成
-type ButtonWithIconProps = ButtonBaseProps & IconProps & {
-  icon: React.ReactNode;
-}
-
-export const ButtonWithIcon = (props: ButtonWithIconProps) => {
-  // ...
-};
-```
-
-この`ButtonWithIconProps`にマウスカーソルを合わせると、エディタは次のように表示してくれます。
-
-![type ButtonWithIconProps = ButtonBaseProps & IconProps & {
-  icon: React.ReactNode;
-}](/images/interface-extends-props/type.png)
-
-ちなみに上記の例をinterfaceで書き換えると、以下のようになります。
+例として、ReactのPropsを定義してみましょう。
 
 <!-- textlint-disable ja-technical-writing/ja-no-mixed-period -->
-:::details interface版のProps定義
+:::details interfaceの型定義
 <!-- textlint-enable ja-technical-writing/ja-no-mixed-period -->
 
 ```tsx
-interface IconProps {
-  size: 'small' | 'medium' | 'large';
-}
-
-interface ButtonBaseProps {
-  onClick: () => void;
-  disabled?: boolean;
-}
-
-interface ButtonWithIconProps extends ButtonBaseProps, IconProps {
+export interface IconButtonProps extends HTMLAttributes<HTMLButtonElement> {
   icon: React.ReactNode;
 }
-export const ButtonWithIcon = (props: ButtonWithIconProps) => {
+
+export const IconButton = (props: IconButtonProps) => {
   // ...
 };
 ```
@@ -77,6 +41,30 @@ export const ButtonWithIcon = (props: ButtonWithIconProps) => {
 :::
 
 ![interface ButtonWithIconProps](/images/interface-extends-props/interface.png)
+
+interfaceの場合は名前しか表示されませんでした。
+
+<!-- textlint-disable ja-technical-writing/ja-no-mixed-period -->
+:::details type aliasの型定義
+<!-- textlint-enable ja-technical-writing/ja-no-mixed-period -->
+
+```tsx
+export type IconButtonProps = HTMLAttributes<HTMLButtonElement> & {
+  icon: React.ReactNode;
+};
+
+export const IconButton = (props: IconButtonProps) => {
+  // ...
+};
+```
+
+:::
+
+![type ButtonWithIconProps = ButtonBaseProps & IconProps & {
+  icon: React.ReactNode;
+}](/images/interface-extends-props/type.png)
+
+宣言した内容が表示されました。
 
 このように、`type`の場合、合成された型であっても、最終的な構造が一目でわかります。
 私もこの「分かりやすさ」を理由に、業務では常に`type`を使うようにしていました。
