@@ -2,7 +2,7 @@
 title: "【結論】TypeScriptの型定義はtypeよりinterfaceを使うべき理由"
 emoji: "📐"
 type: "tech"
-topics: ["typescript", "react", "frontend", "performance"]
+topics: ["typescript", "react", "frontend", "performance", "zennfes2025free"]
 published: true
 ---
 
