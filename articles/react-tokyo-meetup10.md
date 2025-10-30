@@ -74,7 +74,7 @@ Yamada UIとの出会い、得られた経験、そしてそれによって広�
 
 ### アメリカのITエンジニアの就職事情とReactとの出会い
 
-![alt](/images/react-tokyo-meetup10/ReactTokyo_LT_Keiko.png)
+![Keikoさんのスライド](/images/react-tokyo-meetup10/ReactTokyo_LT_Keiko.png)
 [Keikoさん](https://github.com/kkoisland)
 
 アメリカでITエンジニアとして働くKeikoさんは、アメリカのITエンジニアの就職事情とReactとの出会いについて発表されました。
@@ -117,5 +117,6 @@ React Tokyo は今後もオフライン、オンラインどちらも企画を�
 ![集合写真](/images/react-tokyo-meetup10/group-photo.jpg)
 
 それでは、また次回のイベントでお会いしましょう！
+
 次回は11月14日に開催予定です！
 https://react-tokyo.connpass.com/event/372887/
