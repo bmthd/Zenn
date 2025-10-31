@@ -98,7 +98,7 @@ React Tokyo は今後もオフライン、オンラインどちらも企画を�
 
 一緒に盛り上げていきましょう。
 
-イベント開催にあたり、会場をご提供いただきました[株式会社アララ](https://www.arara.com/)様、お食事をご提供いただきました[株式会社ギフティー](https://giftee.co.jp/)様、誠にありがとうございました。
+イベント開催にあたり、会場をご提供いただきました[アララ株式会社](https://www.arara.com/)様、お食事をご提供いただきました[株式会社ギフティ](https://giftee.co.jp/)様、誠にありがとうございました。
 <!-- textlint-disable ja-technical-writing/sentence-length -->
 そして日頃よりコミュニティをご支援いただいているコミュニティスポンサーの
 [株式会社キッカケクリエイション](https://kikkakecreation.com/)様
