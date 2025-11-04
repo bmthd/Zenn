@@ -3,7 +3,7 @@ title: "React Tokyo ミートアップ #10 イベントレポート"
 emoji: "🎉"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: [reacttokyo,イベントレポート,react,yamadaui]
-published: false
+published: true
 publication_name: "react_tokyo"
 ---
 
