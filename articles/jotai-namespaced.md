@@ -172,7 +172,7 @@ export const HeaderCartSummary = () => {
 useAtom(cartAtoms.result);
 ```
 
-と書いていれば、**cartAtomsというドメインのAtom**であると一目でわかります。Zustandの `state.slice.value` に近い感覚です。
+と書いていれば、**cartAtomsというドメインのAtom**であると一目でわかります。
 
 ---
 
