@@ -164,15 +164,15 @@ export const HeaderCartSummary = () => {
 
 ### 2. 出自（ドメイン）がコード上で明示される
 
-`result` という名前だけでは「カート結果」なのか「API結果」なのか判断がつきません。
+import文を見に行かずとも、どのドメインのAtomなのかが判断できます。
 
-しかし、次のように書くと明確になります。
+例えば、次のように書いていれば。
 
 ```ts
 useAtom(cartAtoms.result);
 ```
 
-と書いていれば、**cartAtomsというドメインのAtom**であると一目でわかります。Zustandの `useCartStore(state => state.items)` のような感覚で使えます。
+**cartAtomsというドメインのAtom**であると一目でわかります。Zustandの `useCartStore(state => state.items)` のような感覚で使えます。
 
 ---
 
