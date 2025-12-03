@@ -74,23 +74,25 @@ export const HeaderAction = createHoistableComponent();
 
 ## このパターンのメリット
 
-- "use client" ディレクティブを1箇所にまとめられる。
-  先程の例を通常のContextを宣言した場合をイメージしてみてください。
+- "use client" ディレクティブを1箇所にまとめられる
 
-  ```tsx: header-context.tsx
-  "use client";
-  import { createContext, useContext, useState } from "react";
+先程の例を通常のContextを宣言した場合をイメージしてみてください。
 
-  const HeaderActionContext = createContext<{
-    hoistedContent: React.ReactNode;
-    setHoistedContent: (content: React.ReactNode) => void;
-  } | null>(null);
-  ```
-  このようなContextを使う側のコンポーネントはすべてクライアントコンポーネントになる必要がある。
-  そのため、Contextだけを共通化すると、使う側でContextを読み取るためのコンポーネントを宣言する必要がある。
-  一方、Contextを共通化する場合は、読み出しに必要な情報が不足する。
-  その点、Component Factoryパターンを使うと、Contextの宣言とそれを使うコンポーネントの宣言を1箇所にまとめることができる。
-  その結果、"use client" ディレクティブを1箇所に付与するだけで済む。
+```tsx: header-context.tsx
+"use client";
+import { createContext, useContext, useState } from "react";
+
+const HeaderActionContext = createContext<{
+  hoistedContent: React.ReactNode;
+  setHoistedContent: (content: React.ReactNode) => void;
+} | null>(null);
+```
+
+このようなContextを使う側のコンポーネントはすべてクライアントコンポーネントになる必要があります。
+そのため、Contextだけを共通化すると、使う側でContextを読み取るためのコンポーネントを宣言する必要があります。
+一方、Contextを共通化する場合は、読み出しに必要な情報が不足します。
+その点、Component Factoryパターンを使うと、Contextの宣言とそれを使うコンポーネントの宣言を1箇所にまとめることができます。
+その結果、"use client" ディレクティブを1箇所に付与するだけで済みます。
 
 
 
@@ -98,7 +100,7 @@ export const HeaderAction = createHoistableComponent();
 
 ## なぜこれが React のルール違反にならないのか？
 
-このパターンは一見、Reactのルールに違反しているように見える場合がある。
+このパターンは一見、Reactのルールに違反しているように見える場合があります。
 しかし、Component FactoryパターンはReactのベストプラクティスに沿った設計です。
 詳細な説明については、今後の記事で詳しく解説する予定です。
 
