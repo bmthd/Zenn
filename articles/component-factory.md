@@ -6,7 +6,9 @@ topics: []
 published: false
 ---
 
+:::message
 この記事は [React Tokyo Advent Calendar 2025](https://qiita.com/advent-calendar/2025/react-tokyo) の 4日目の記事です。
+:::
 
 ## はじめに
 
