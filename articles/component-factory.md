@@ -6,6 +6,8 @@ topics: []
 published: false
 ---
 
+この記事は [React Tokyo Advent Calendar 2025](https://qiita.com/advent-calendar/2025/react-tokyo) の 4日目の記事です。
+
 ## はじめに
 
 モダンなコンポーネントライブラリのソースコードを読んでいて、最近見かけることが増えてきた「Component Factoryパターン」について解説します。
