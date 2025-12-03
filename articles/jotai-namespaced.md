@@ -86,16 +86,28 @@ Jotaiの良さを削ぐ結果になります。
 ### 1. Atom定義側
 
 ```ts
+// atoms/userAtoms.ts
 import { atom } from 'jotai';
 
-// 内部的な状態
-export const user = atom(0);
+export const name = atom('');
+export const isLoggedIn = atom(false);
+export const profile = atom((get) => {
+  const userName = get(name);
+  const loggedIn = get(isLoggedIn);
+  return loggedIn ? { name: userName } : null;
+});
+```
 
-// 派生状態
-export const totalPrice = atom((get) => get(input) * 2);
+```ts
+// atoms/cartAtoms.ts
+import { atom } from 'jotai';
 
-// アクション
-export const clear = atom(null, (_get, set) => set(input, 0));
+export const items = atom([]);
+export const totalPrice = atom((get) => {
+  const cartItems = get(items);
+  return cartItems.reduce((sum, item) => sum + item.price, 0);
+});
+export const clear = atom(null, (_get, set) => set(items, []));
 ```
 
 ### 2. 利用側（コンポーネント）
@@ -103,18 +115,26 @@ export const clear = atom(null, (_get, set) => set(input, 0));
 ```tsx
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 // ✨ Namespace Import
-import * as cartAtoms from './features/calc/atoms';
+import * as userAtoms from '@/atoms/userAtoms';
+import * as cartAtoms from '@/atoms/cartAtoms';
 
-export const cartAtomsulator = () => {
-  const [input, setInput] = useAtom(cartAtoms.input);
-  const result = useAtomValue(cartAtoms.result);
-  const reset = useSetAtom(cartAtoms.reset);
+export const HeaderCartSummary = () => {
+  const [userName] = useAtom(userAtoms.name);
+  const [isLoggedIn] = useAtom(userAtoms.isLoggedIn);
+  const [items] = useAtom(cartAtoms.items);
+  const totalPrice = useAtomValue(cartAtoms.totalPrice);
+  const clearCart = useSetAtom(cartAtoms.clear);
+
+  if (!isLoggedIn) {
+    return <p>ログインしてカートを表示</p>;
+  }
 
   return (
     <div>
-      <p>Input: {input}</p>
-      <p>Result: {result}</p>
-      <button onClick={reset}>Reset</button>
+      <p>{userName}さんのカート</p>
+      <p>商品点数: {items.length}点</p>
+      <p>合計: {totalPrice.toLocaleString()}円</p>
+      <button onClick={clearCart}>カートを空にする</button>
     </div>
   );
 };
