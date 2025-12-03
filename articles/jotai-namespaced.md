@@ -154,11 +154,11 @@ export const HeaderCartSummary = () => {
 
 これからは以下のようになります。
 
-* `userAtoms.data`
-* `userAtoms.profile`
-* `userAtoms.isLoggedIn`
+* `user.data`
+* `user.profile`
+* `user.isLoggedIn`
 
-`useAtom(userAtoms.data)` と書く時点で「これはAtom」であることが明確です。
+`useAtom(user.data)` と書く時点で「これはAtom」であることが明確です。
 
 ---
 
@@ -169,10 +169,10 @@ export const HeaderCartSummary = () => {
 しかし、次のように書くと明確になります。
 
 ```ts
-useAtom(cartAtoms.result);
+useAtom(cart.result);
 ```
 
-と書いていれば、**cartAtomsというドメインのAtom**であると一目でわかります。Zustandの `state.slice.value` に近い感覚です。
+と書いていれば、**cartというドメインのAtom**であると一目でわかります。Zustandの `state.slice.value` に近い感覚です。
 
 ---
 
