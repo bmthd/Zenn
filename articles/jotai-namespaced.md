@@ -1,5 +1,5 @@
 ---
-title: "JotaiのAtom散らかる問題、`import * as Namespace` で解決する"
+title: "JotaiのAtom散らかる問題、`import * as ns` で解決する"
 emoji: "🧩"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["jotai", "react", "state-management"]
@@ -9,7 +9,7 @@ published: false
 この記事は [React Tokyo Advent Calendar 2025](https://qiita.com/advent-calendar/2025/react-tokyo) の 5日目の記事です。
 :::
 
-## JotaiのAtom散らかる問題、`import * as Namespace` で解決する
+## JotaiのAtom散らかる問題、`import * as ns` で解決する
 
 Reactの状態管理において、Jotaiは非常に強力です。しかし、アプリケーションが大きくなるにつれて、誰もが一度は直面する問題があります。
 
@@ -194,7 +194,7 @@ Atomが増えるのはJotaiの仕様ですが、**コードが散らかるのは
 
 1. オブジェクトに無理にまとめない
 2. ファイル（モジュール）単位でまとめる
-3. `import * as Name` で呼び出す
+3. `import * as ns` で呼び出す
 
 これだけで、Jotaiの開発体験は大きく改善されます。
 
