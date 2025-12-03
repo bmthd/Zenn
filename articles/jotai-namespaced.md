@@ -15,7 +15,7 @@ Reactの状態管理において、Jotaiは非常に強力です。しかし、�
 
 > **「Atom、増えすぎじゃない？」**
 
-今回は、**Namespace Import（`import * as ...`）を活用すべき理由**とメリットをまとめます。
+今回は、**namespace import（`import * as ...`）を活用すべき理由**とメリットをまとめます。
 
 ---
 
@@ -77,11 +77,11 @@ Jotaiの良さを削ぐ結果になります。
 
 ---
 
-## 解決策: `import * as`（Namespace Import）を使う
+## 解決策: `import * as`（namespace import）を使う
 
 そこで推奨したいのが、**「ファイル（モジュール）自体をオブジェクトとして扱う」**というアプローチになります。
 
-関連するAtomをひとつのファイルにまとめ、利用側では次のように **Namespace としてimport** します。
+関連するAtomをひとつのファイルにまとめ、利用側では次のように **namespace としてimport** します。
 
 ### 1. Atom定義側
 
@@ -114,7 +114,7 @@ export const clear = atom(null, (_get, set) => set(items, []));
 
 ```tsx
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-// ✨ Namespace Import
+// ✨ namespace import
 import * as userAtoms from '@/atoms/userAtoms';
 import * as cartAtoms from '@/atoms/cartAtoms';
 
@@ -178,11 +178,11 @@ useAtom(cartAtoms.result);
 
 ### 3. 関連するAtomをファイルに分ける習慣がつく
 
-Namespace Importを使うには、関連するAtomをひとつのファイルにまとめる必要があります。
+namespace importを使うには、関連するAtomをひとつのファイルにまとめる必要があります。
 
 つまり、次のような動機が自然に生まれます。
 
-> 「Namespaceで読みやすくするために、Atomを機能ごとに切り分けよう」
+> 「namespaceで読みやすくするために、Atomを機能ごとに切り分けよう」
 
 その結果、**ディレクトリ構成が綺麗に保たれます**。
 
