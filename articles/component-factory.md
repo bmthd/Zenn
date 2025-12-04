@@ -1,8 +1,8 @@
 ---
-title: "コンポーネントを\"生成\"する関数 (Component Factory パターン) でロジックと型をカプセル化する"
+title: "コンポーネントを\"生成\"する関数でロジックと型をカプセル化する"
 emoji: "🐡"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [react, typescript, design-pattern]
+topics: [react, typescript, designpattern]
 published: true
 ---
 
@@ -13,17 +13,21 @@ published: true
 ## はじめに
 
 モダンなコンポーネントライブラリのソースコードを読んでいて、最近見かけることが増えてきた「Component Factoryパターン」について解説します。
+ちなみに、このComponent Factoryパターンは通常のFactoryパターンをもとに私が勝手に名付けたもので、一般的な名称ではありません。
+流行らせたい！
 
 ### やりたいことのイメージ
 
 まず、どのようなコードを目指しているのか、具体的な利用例から見てみましょう。
 あるページの一部を、共通レイアウト側のヘッダーに「転送（Hoist）」したいという要件があるとします。
-各ページのレイアウトを共通にしたいのですが、ヘッダーボタンに固有の要件があります。レイアウト側で直接定義するのを避けるべきです。
-しかし、各ページで共通するレイアウトは維持したい、という状況です。
-通常Contextを作成し、それを使う側で`use(Context)`するという方法もありますが、今回は「コンポーネントを生成する関数（Component Factory）」パターンを使って実装します。
+例えば、SNSサイトで **「ヘッダー部分は共通のデザインを採用したい。でもユーザー詳細ページではヘッダー部分にフォローボタンを配置したい。」** のようなケースです。
+レイアウト側の条件分岐で出し分ける事もできますが、レイアウトなのに出し分けの責務をもたせるのは不自然です。
+また、そもそもそのページでしか使わないAPIを必要とする場合はレイアウトでの出し分けは不可能です。
+Contextを作成し、それを使う側で`use(Context)`するという方法もありますが、今回はパターンを使って実装します。
 
 ```tsx: page.tsx
-import { HeaderAction } from './header-factory';
+// ページコンポーネント
+import { HeaderAction } from './header-action';
 
 export default function Page() {
   return (
@@ -41,7 +45,7 @@ export default function Page() {
 
 ```tsx:layout.tsx
 // レイアウトコンポーネント
-import { HeaderAction } from './header-factory';
+import { HeaderAction } from './header-action';
 
 export default function Layout({ children }) {
   return (
@@ -59,30 +63,26 @@ export default function Layout({ children }) {
 }
 ```
 
-```tsx:header-factory.tsx
+```tsx:header-action/index.tsx
+export * as HeaderAction from './header-action';
+```
+
+```tsx:header-action/header-action.tsx
 "use client";
 import { createHoistableComponent } from "@/lib/hoistable-component";
 
-export const HeaderAction = createHoistableComponent();
-//             ^? { Provider: React.FC<{ children: React.ReactNode }>; Slot: React.FC; Hoist: React.FC<{ children: React.ReactNode }> }
+export const { Provider, Slot, Hoist } = createHoistableComponent();
 ```
 
 このように、`createHoistableComponent` という関数が、**互いに関連し合うコンポーネント群を一括で生成**しています。
 
 これはJavaScriptのクロージャと高階関数の特性を活かし、特定のスコープ（ContextやStore）を共有するコンポーネントを動的に定義するパターンです。
 
+コンポーネントとFactoryの間にある再exportの部分については後述します。
 
 ## このパターンのメリット
 
-- 出自が明確になり、自然なnamespaceが形成される
-
-Component Factoryパターンを使うと、生成されたコンポーネント群が自然にnamespaceを形成します。
-これにより、利用側で`機能名.Provider`や`機能名.Slot`のような明確な命名規約を矯正できます。
-もしこれらのコンポーネントを機能ごとに手書きする場合、あらかじめ名前が決まっていないので自由に名前をつけることができてしまいます。
-その結果、開発者によってnamespaceを使わなかったり、`Provider`、`Context`、`Store`など、似たような役割を持つコンポーネントに異なる名前が付けられてしまうことがあります。
-Component Factoryパターンでは、Factoryが統一されたAPIを返すため、プロジェクト全体で一貫した命名規約を保つことができます。
-
-- "use client" ディレクティブを1箇所にまとめられる
+### "use client" ディレクティブを1箇所にまとめられる
 
 先程の例を通常のContextで宣言した場合をイメージしてみてください。
 
@@ -102,7 +102,7 @@ const HeaderActionContext = createContext<{
 その結果、"use client" ディレクティブを1箇所に付与するだけで済みます。
 これが、コードの可読性と保守性を向上させる大きなメリットとなります。
 
-- 型情報が一箇所にまとまる
+### 型情報が一箇所にまとまる
 
 複数の関連するコンポーネント群が似通った構成を持つ場合に共通化をしようとしたとき、それぞれのコンポーネントに型引数を渡す必要が出てきます。
 場合によっては、型推論をさせるためだけに本来不要な引数を渡す必要が出てくることもあります。
@@ -167,9 +167,9 @@ Fieldコンポーネントは本来スキーマを受け取る必要はありま
 :::
 
 
-- APIのカプセル化
+### 実装をカプセル化することができる
 Component Factoryパターンを使うと、内部で使用するContextやStoreの存在を隠蔽し、利用者にはシンプルなコンポーネントだけを露出できます。
-これにより、APIの設計がシンプルになり、利用者が誤って内部の実装に依存するリスクを減らせます。
+これにより、APIの設計がシンプルになり、コードリーディング時の理解が容易になります。
 
 ## 実装例
 
@@ -261,7 +261,35 @@ export default function Page() {
 React から見れば、これらは通常の `function Component() {}` で定義されたコンポーネントと何ら変わりありません。
 クロージャを通じて特定のスコープを共有しているだけで、レンダリングの仕組みは標準的な React の挙動に従っています。
 
-ただし、Factory 関数をコンポーネント内部で呼び出すのはNGです。
+ただし、戻り値のオブジェクトを展開せずにそのままexportはできません。
+
+```tsx
+// ❌ これはNG
+export const HeaderAction = createHoistableComponent();
+```
+
+:::details 回避方法
+変数に名前空間をつけたい場合は、以下のように一旦変数に代入してからモジュールとして再exportしてください。
+
+```tsx
+// /header-action/header-action.tsx
+export const { Provider, Slot, Hoist } = createHoistableComponent();
+
+// /header-action/index.tsx
+export * as HeaderAction from './header-action';
+
+// /page.tsx
+import { HeaderAction } from './header-action';
+
+export default function Page() {
+  return <HeaderAction.Provider>...</HeaderAction.Provider>;
+}
+```
+
+参照を安定させながら、名前空間経由でアクセスできます。
+:::
+
+また、Factory 関数をコンポーネント内部で呼び出すのはNGです。
 
 ```tsx
 export default function Page() {
@@ -273,6 +301,137 @@ export default function Page() {
 
 Component Factory はあくまでコンポーネント定義を生成するユーティリティであり、hooks のようにレンダリング中に使うものではありません。
 この点を守れば、このパターンは安全かつ強力な武器になります。
+
+## どのようなライブラリが実装している？
+
+一般的に、Component Factoryパターンは`createXXXXComponent`のような名前で提供されることが多いです。
+コンポーネントだけでなく、hooksや、Factoryを生成でき、同時に様々なAPIを生成できます。
+Factoryを返す場合、その返り値は`withXXXX`のように、それがどの文脈で使われるのかを示す命名が多いです。
+この場合Factoryを生成するFactoryなので、Meta Factory関数とも言えますね。
+
+### Yamada UI
+
+Yamada UIは日本発のコンポーネントライブラリです。
+ライブラリとしてのメンテナンス性を高めるために、ほぼ全てのコンポーネントを`createComponent`, `createSlotComponent`で生成しています。
+この記事を書こうと思った理由も、私がYamada UI v2の開発に携わる中でこのAPIに感動したことがきっかけです。
+
+https://yamada-ui.com/ja/docs/components/create-component
+
+そしてなんと、Yamada UIはこのAPIを内部で使うだけでなく、ユーザーにも公開しています。
+あろうことか、日本語のドキュメント付きで！
+ユーザーランドでこのAPIを使用できるケースは少ないので、触ってみてください。
+きっと感動するはずです。
+
+### React Call
+
+React Callは、window.confirmのような感覚でモーダルダイアログのような任意のUIを動機的に呼び出せるようにするライブラリです。
+
+https://react-call.desko.dev/
+
+
+ダイアログ、トースト通知などのAPIに特化したヘッドレスライブラリで、Component Factoryパターンを活用しています。
+`createCallable`関数が型情報と、コンポーネントを受け取れるのが特徴で、その受け取った型情報を徹底的に使い倒している点が非常に面白いです。
+
+<!-- textlint-disable ja-technical-writing/ja-no-mixed-period -->
+:::details サンプルコード
+<!-- textlint-enable ja-technical-writing/ja-no-mixed-period -->
+```tsx
+import { createCallable } from 'react-call'
+
+interface Props { message: string }
+type Response = boolean
+
+const Confirm = createCallable<Props, Response>(({ call, message }) => (
+  <div role="dialog">
+    <p>{message}</p>
+    <button onClick={() => call.end(true)}>Yes</button>
+    <button onClick={() => call.end(false)}>No</button>
+  </div>
+))
+
+export default function Page() {
+  const handleClick = async () => {
+    await Confirm.call()
+  }
+  return (
+    <Confirm.Root>
+      <button onClick={handleClick}>Show Confirm</button>
+    </Confirm.Root>
+  )
+}
+```
+:::
+
+### TanStack Form
+
+TanStack Formは、2025年にv1がリリースされた、新世代のフォームライブラリです。
+
+https://tanstack.com/form/latest
+
+アプリケーションが使用するべきフォームのパーツを受け取り、それらがフォームのコンテキストにアクセス可能なようにラップしたコンポーネント群を生成する`createFormHook`関数を提供しています。
+
+<!-- textlint-disable ja-technical-writing/ja-no-mixed-period -->
+:::details サンプルコード
+<!-- textlint-enable ja-technical-writing/ja-no-mixed-period -->
+```tsx: from-context.tsx
+import { createFormHookContexts } from "@tanstack/react-form";
+
+export const { fieldContext, useFieldContext, formContext, useFormContext } =
+  createFormHookContexts();
+```
+
+```tsx: form-hook.tsx
+import { Button, InputNumber, RadioGroup, Select, TextField } from "@/ui/form";
+import { createFormHook } from "@tanstack/react-form";
+import { fieldContext, formContext } from "./form-context";
+
+export const { useAppForm, withForm } = createFormHook({
+  fieldComponents: {
+    TextField,
+    InputNumber,
+    Select,
+    RadioGroup,
+  },
+  formComponents: {
+    SubmitButton,
+  },
+  fieldContext,
+  formContext,
+});
+```
+
+```tsx: page.tsx
+import { useAppForm } from "./form-hook"; // ✅️アプリケーション側の依存がこれだけで済む
+import { z } from "zod";
+
+const schema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  phoneNumber: z.string().regex(/^\d{10}$/, "Phone number must be 10 digits"),
+});
+
+export default function Page() {
+  const form = useAppForm({
+    validators: { onChange: schema }
+  });
+
+  return (
+    <form>
+      <form.AppField name="firstName" >
+        {(field) => <field.TextField label="First Name" />}
+      </form.AppField>
+      <form.AppField name="lastName" >
+        {(field) => <field.TextField label="Last Name" />}
+      </form.AppField>
+      <form.AppField name="phoneNumber" >
+        {(field) => <field.InputNumber label="Phone Number" />}
+      </form.AppField>
+      <form.SubmitButton>Submit</form.SubmitButton>
+    </form>
+  );
+}
+```
+:::
 
 ## まとめ
 
