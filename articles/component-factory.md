@@ -74,13 +74,21 @@ export const HeaderAction = createHoistableComponent();
 
 ## このパターンのメリット
 
+- 出自が明確になり、自然なnamespaceが形成される
+
+Component Factoryパターンを使うと、生成されたコンポーネント群が自然にnamespaceを形成します。
+これにより、利用側で`機能名.Provider`や`機能名.Slot`のような明確な命名規約を矯正できます。
+もしこれらのコンポーネントを機能ごとに手書きする場合、あらかじめ名前が決まっていないので自由に名前をつけることができてしまいます。
+その結果、開発者によってnamespaceを使わなかったり、`Provider`、`Context`、`Store`など、似たような役割を持つコンポーネントに異なる名前が付けられてしまうことがあります。
+Component Factoryパターンでは、Factoryが統一されたAPIを返すため、プロジェクト全体で一貫した命名規約を保つことができます。
+
 - "use client" ディレクティブを1箇所にまとめられる
 
-先程の例を通常のContextを宣言した場合をイメージしてみてください。
+先程の例を通常のContextで宣言した場合をイメージしてみてください。
 
 ```tsx: header-context.tsx
 "use client";
-import { createContext, useContext, useState } from "react";
+import { createContext, useState } from "react";
 
 const HeaderActionContext = createContext<{
   hoistedContent: React.ReactNode;
@@ -88,8 +96,8 @@ const HeaderActionContext = createContext<{
 } | null>(null);
 ```
 
-useContextを呼び出すコンポーネントはすべてクライアントコンポーネントである必要があります。
-そのため、Contextだけを共通化すると、使う側でContextを読み取るコンポーネントを宣言する必要があります。
+`use(Context)`を呼び出すコンポーネントはすべてクライアントコンポーネントである必要があります。
+そのため、`Context`だけを共通化の対象とする場合、使う側は`Context`を読み取るだけにクライアントコンポーネントを宣言する必要があります。
 その点、Component Factoryパターンを使うと、Contextの宣言とそれを使うコンポーネントの宣言を1箇所にまとめることができます。
 その結果、"use client" ディレクティブを1箇所に付与するだけで済みます。
 これが、コードの可読性と保守性を向上させる大きなメリットとなります。
@@ -136,6 +144,18 @@ export default function Page() {
     <Form schema={UserSchema}>
       <Field schema={UserSchema} name="name" />
       <Field schema={UserSchema} name="age" />
+    </Form>
+  );
+}
+
+// or
+type User = z.infer<typeof UserSchema>;
+
+export default function Page() {
+  return (
+    <Form schema={UserSchema}>
+      <Field<User> name="name" />
+      <Field<User> name="age" />
     </Form>
   );
 }
