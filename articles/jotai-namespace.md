@@ -18,8 +18,6 @@ Reactの状態管理において、Jotaiは非常に強力です。
 
 今回は、namespace importを活用すべき理由とメリットをまとめます。
 
----
-
 ## 背景: Jotaiの郷に従うとファイルがカオスになる
 
 Jotaiの基本思想は「Atomic」な状態管理です。
@@ -51,8 +49,6 @@ const isLoggedIn = useAtomValue(userIsLoggedInAtom);
 ...
 ```
 
----
-
 ## なぜ Zustand のように「オブジェクト」にまとめないのか？
 
 Zustandのような単一Storeライブラリを使ったことがある人にはこの疑問が生まれます。
@@ -78,8 +74,6 @@ const isLoggedIn = useUserStore((state) => state.user.isLoggedIn);
 * Code Splitting による不要Atomの除外が効きにくい
 
 Jotaiの良さを削ぐ結果になります。
-
----
 
 ## 解決策: `import * as`（namespace import）を使う
 
@@ -139,8 +133,6 @@ export const HeaderCartSummary = () => {
 };
 ```
 
----
-
 ## このパターンのメリット
 
 ### 1. 出自（ドメイン）がコード上で明示される
@@ -153,9 +145,8 @@ import文を見に行かずとも、どのドメインのAtomなのかが判断�
 useAtom(cartAtoms.result);
 ```
 
-**cartAtomsというドメインのAtom**であると一目でわかります。Zustandの `useCartStore(state => state.items)` のような感覚で使えます。
-
----
+**cartAtomsというドメインのAtom**であると一目でわかります。
+Zustandの `useCartStore(state => state.items)` のような感覚で使えます。
 
 ### 2. 変数名に `Atom` をつけなくて済む（より簡潔な命名）
 
@@ -184,8 +175,6 @@ namespace importを使うには、関連するAtomをひとつのファイルに
 > 「namespaceで読みやすくするために、Atomを機能ごとに切り分けよう」
 
 その結果、**ディレクトリ構成が綺麗に保たれます**。
-
----
 
 ## まとめ
 
