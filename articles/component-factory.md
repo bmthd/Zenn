@@ -108,6 +108,8 @@ const HeaderActionContext = createContext<{
 場合によっては、型推論をさせるためだけに本来不要な引数を渡す必要が出てくることもあります。
 Component Factoryパターンを使うと、特定の引数に基づいて生成されたコンポーネント群が同じ型情報を共有するため、型引数の冗長な指定を避けることができます。
 
+以下は架空のフォームライブラリにおけるComponent Factoryパターンの利用例です。
+
 ```tsx: form-factory.tsx
 import { createFormComponents } from "@/lib/form-factory";
 import { z } from "zod";
@@ -124,12 +126,27 @@ const ItemSchema = z.object({
   price: z.number(),
 });
 
+// スキーマを差し替えるだけで、簡単にフォームのパーツを生成できる！
 export const { Form: ItemForm, Field: ItemField } = createFormComponents(ItemSchema);
 ```
+```tsx: page.tsx
+import { UserForm, UserField } from "./form-factory";
+
+export default function Page() {
+  return (
+    // 😊 UserSchemaに基づいた型情報が自動的に適用される
+    <UserForm>
+      <UserField name="name" /> {/* nameは"name" | "age"と推論される型情報を予め持っている！ */}
+      <UserField name="age" />
+    </UserForm>
+  );
+}
+```
+
 <!-- textlint-disable ja-technical-writing/ja-no-mixed-period -->
 :::details 使わない場合
 <!-- textlint-enable ja-technical-writing/ja-no-mixed-period -->
-```tsx: form-without-factory.tsx
+```tsx: page.tsx
 import { z } from "zod";
 import { Form } from "@/components/form";
 import { Field } from "@/components/field";
@@ -141,7 +158,7 @@ const UserSchema = z.object({
 
 export default function Page() {
   return (
-    //  🙁毎回スキーマを渡す必要がある…
+    //  😢 毎回スキーマを渡す必要がある…
     <Form schema={UserSchema}>
       <Field schema={UserSchema} name="name" />
       <Field schema={UserSchema} name="age" />
@@ -154,7 +171,7 @@ type User = z.infer<typeof UserSchema>;
 
 export default function Page() {
   return (
-    //  🙁毎回型引数を渡す必要がある…
+    //  😢 毎回型引数を渡す必要がある…
     <Form schema={UserSchema}>
       <Field<User> name="name" />
       <Field<User> name="age" />
@@ -241,7 +258,7 @@ export default function Page() {
 
 ```tsx
 export default function Page() {
-  // ❌ これだとレンダリングのたびに別の Provider/Slot コンポーネントが生成される
+  // ❌️ これだとレンダリングのたびに別の Provider/Slot コンポーネントが生成される
   const { Provider, Slot } = createHoistableComponent(); 
   return <Provider>...</Provider>;
 }
@@ -272,7 +289,7 @@ https://yamada-ui.com/ja/docs/components/create-component
 
 ### React Call
 
-React Callは、window.confirmのような感覚でモーダルダイアログのような任意のUIを動機的に呼び出せるようにするライブラリです。
+React Callは、window.confirmのような感覚でモーダルダイアログのような任意のUIを手続き的に呼び出せるようにするライブラリです。
 
 https://react-call.desko.dev/
 
@@ -349,7 +366,7 @@ export const { useAppForm, withForm } = createFormHook({
 ```
 
 ```tsx: page.tsx
-import { useAppForm } from "./form-hook"; // ✅️アプリケーション側の依存がこれだけで済む
+import { useAppForm } from "./form-hook"; // 😊 アプリケーション側の依存がこれだけで済む
 import { z } from "zod";
 
 const schema = z.object({
