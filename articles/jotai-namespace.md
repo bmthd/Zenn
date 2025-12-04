@@ -150,13 +150,13 @@ Zustandの `useCartStore(state => state.items)` のような感覚で使えま�
 
 ### 2. 変数名に `Atom` をつけなくて済む（より簡潔な命名）
 
-これまでは以下のようでした。
+before:
 
 * `userAtom`
 * `userProfileAtom`
 * `isLoggedInAtom`
 
-これからは以下のようになります。
+after:
 
 * `userAtoms.data`
 * `userAtoms.profile`
