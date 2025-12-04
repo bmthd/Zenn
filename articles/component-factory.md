@@ -2,7 +2,7 @@
 title: "コンポーネントを\"生成\"する関数でロジックと型をカプセル化する"
 emoji: "🐡"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: [react, typescript, designpattern]
+topics: [react, typescript, designpattern, yamadaui]
 published: true
 ---
 
@@ -141,6 +141,7 @@ const UserSchema = z.object({
 
 export default function Page() {
   return (
+    //  🙁毎回スキーマを渡す必要がある…
     <Form schema={UserSchema}>
       <Field schema={UserSchema} name="name" />
       <Field schema={UserSchema} name="age" />
@@ -153,6 +154,7 @@ type User = z.infer<typeof UserSchema>;
 
 export default function Page() {
   return (
+    //  🙁毎回型引数を渡す必要がある…
     <Form schema={UserSchema}>
       <Field<User> name="name" />
       <Field<User> name="age" />
@@ -201,7 +203,8 @@ export default function Page() {
 }
 ```
 
-このように、createHoistableComponent は**モジュールのトップレベル（コンポーネントの外側）で呼び出されます。そのため、アプリケーションのライフサイクルを通じて Provider や Slot といったコンポーネント関数の参照は不変（Stable）**です。
+このように、createHoistableComponent はモジュールのトップレベル（コンポーネントの外側）で呼び出されます。
+そのため、アプリケーションのライフサイクルを通じて Provider や Slot といったコンポーネント関数の参照は不変（Stable）です。
 
 React から見れば、これらは通常の `function Component() {}` で定義されたコンポーネントと何ら変わりありません。
 クロージャを通じて特定のスコープを共有しているだけで、レンダリングの仕組みは標準的な React の挙動に従っています。
@@ -214,7 +217,7 @@ export const HeaderAction = createHoistableComponent();
 ```
 
 :::details 回避方法
-変数に名前空間をつけたい場合は、以下のように一旦変数に代入してからモジュールとして再exportしてください。
+変数に名前空間をつけたい場合は、以下のように一旦変数に分割代入してからモジュールとして再exportしてください。
 
 ```tsx
 // /header-action/header-action.tsx
