@@ -9,7 +9,7 @@ published: true
 この記事は [React Tokyo Advent Calendar 2025](https://qiita.com/advent-calendar/2025/react-tokyo) の 5日目の記事です。
 :::
 
-## JotaiのAtom散らかる問題、`import * as ns` で解決する
+## はじめに
 
 Reactの状態管理において、Jotaiは非常に強力です。
 しかし、アプリケーションが大きくなるにつれて、誰もが一度は直面する問題があります。
