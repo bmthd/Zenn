@@ -175,67 +175,12 @@ Component Factoryパターンを使うと、内部で使用するContextやStore
 
 以下に、先程の`createHoistableComponent`関数の実装例を示します。
 
-```tsx: hoistable-component.tsx
-import {
-  Fragment,
-  type JSX,
-  type PropsWithChildren,
-  useEffect,
-  useMemo,
-  useRef,
-  useSyncExternalStore,
-} from "react";
-import { createLiftStore, LiftStoreContext, useLiftStore } from "./store.ts";
+https://github.com/bmthd/lift/blob/c8571ad9885b0985d910733eab7862931cc46e61/lib/src/create-slottable-component.tsx
 
-export interface ProviderProps extends PropsWithChildren {}
+このように、関数の中に定義してreturnする以外は至って普通のReactコンポーネントの実装です。
 
-export interface HoistProps extends PropsWithChildren {
-  priority?: number;
-}
-
-export const createHoistableComponent = () => {
-  const Provider = ({ children }: ProviderProps): JSX.Element => {
-    const store = useMemo(createLiftStore, []);
-    return <LiftStoreContext.Provider value={store}>{children}</LiftStoreContext.Provider>;
-  };
-
-  const Slot = (): JSX.Element | null => {
-    const store = useLiftStore();
-    const snap = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
-    if (snap.length === 0) return null;
-
-    return (
-      <>
-        {snap.map(({ key, node }) => (
-          <Fragment key={String(key)}>{node}</Fragment>
-        ))}
-      </>
-    );
-  };
-
-  const Hoist = ({ children, priority = 0 }: HoistProps): JSX.Element | null => {
-    const store = useLiftStore();
-    const keyRef = useRef<symbol>();
-    if (!keyRef.current) {
-      keyRef.current = Symbol("hoist-entry");
-    }
-
-    useEffect(() => {
-      if (!keyRef.current) return;
-      store.upsert(keyRef.current, children, priority);
-
-      return () => {
-        if (!keyRef.current) return;
-        store.remove(keyRef.current);
-      };
-    }, [children, priority, store]);
-
-    return null;
-  };
-
-  return { Provider, Slot, Hoist };
-};
-```
+手前味噌ですが、こちらのライブラリはnpmで公開しており、@bmthd/lift から誰でもインストールして使うことができます。
+[Next.jsでの実装例のdemo](https://github.com/bmthd/lift/tree/main/demo/nextjs)も用意していますので、興味があれば触ってみてください。
 
 ## なぜこれが React のルール違反にならないのか？
 
@@ -293,7 +238,7 @@ export default function Page() {
 
 ```tsx
 export default function Page() {
-  // ❌ これだとレンダリングのたびに別の Provider/Slot クラスが生成される
+  // ❌ これだとレンダリングのたびに別の Provider/Slot コンポーネントが生成される
   const { Provider, Slot } = createHoistableComponent(); 
   return <Provider>...</Provider>;
 }
