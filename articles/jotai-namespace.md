@@ -1,9 +1,9 @@
 ---
 title: "JotaiのAtom散らかる問題、`import * as ns` で解決する"
-emoji: "🧩"
+emoji: "🎄"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["jotai", "react", "state-management"]
-published: false
+topics: ["jotai", "react", "frontend"]
+published: true
 ---
 :::message
 この記事は [React Tokyo Advent Calendar 2025](https://qiita.com/advent-calendar/2025/react-tokyo) の 5日目の記事です。
@@ -11,23 +11,25 @@ published: false
 
 ## JotaiのAtom散らかる問題、`import * as ns` で解決する
 
-Reactの状態管理において、Jotaiは非常に強力です。しかし、アプリケーションが大きくなるにつれて、誰もが一度は直面する問題があります。
+Reactの状態管理において、Jotaiは非常に強力です。
+しかし、アプリケーションが大きくなるにつれて、誰もが一度は直面する問題があります。
 
 > **「Atom、増えすぎじゃない？」**
 
-今回は、**namespace import（`import * as ...`）を活用すべき理由**とメリットをまとめます。
+今回は、namespace importを活用すべき理由とメリットをまとめます。
 
 ---
 
 ## 背景: Jotaiの郷に従うとファイルがカオスになる
 
-Jotaiの基本思想は「Atomic（原子的）」な状態管理です。巨大なストアを持つのではなく、**最小単位の状態（Atom）**を定義し、それらを組み合わせてアプリを作ります。
+Jotaiの基本思想は「Atomic」な状態管理です。
+巨大なストアを持つのではなく、 **最小単位の状態（Atom）** を定義し、それらを組み合わせてアプリを作ります。
 
 しかし、真面目にJotaiを使えば使うほど次のようなAtomが量産されます。
 
-* 基本のAtom: primitiveAtom。
-* 派生Atom: derivedAtom（Read-only）。
-* 書き込み用Atom: writeOnlyAtom（Action）。
+* 基本のAtom: primitiveAtom
+* 派生Atom: derivedAtom（Read-only）
+* 書き込み用Atom: writeOnlyAtom（Action）
 
 これらを素直に実装し、コンポーネントで利用すると、`import` 部分が爆発します。
 
@@ -40,10 +42,13 @@ import {
   userIsLoggedInAtom,
   cartItemsAtom,
 } from "./atoms";
+import { useAtom, useSetAtom, useAtomValue } from "jotai";
 
+...
 // コンポーネント内
-const [input] = useAtom(userNameAtom);
-const [result] = useAtom(cartTotalPriceAtom);
+const userName = useAtomValue(userNameAtom);
+const isLoggedIn = useAtomValue(userIsLoggedInAtom);
+...
 ```
 
 ---
@@ -55,22 +60,21 @@ Zustandのような単一Storeライブラリを使ったことがある人に�
 > 「Atomも一つのオブジェクトにまとめて、`atoms.count` みたいにアクセスできればいいのに」
 
 ```ts
-// Zustandならこう書ける（イメージ）
-const state = useStore();
-console.log(state.calc.result);
+// Zustandならこう書ける
+const userName = useUserStore((state) => state.user.name);
+const isLoggedIn = useUserStore((state) => state.user.isLoggedIn);
 ```
 
-しかし、Jotaiでは **Atomをオブジェクトにまとめるのは悪手（あるいは不可能）**になります。
+しかし、Jotaiでは **Atomをオブジェクトにまとめるのは悪手（あるいは不可能）** です。
 
 理由は次の通りです。
 
-### ● JotaiのAtomは「参照の同一性」が命
+### JotaiのAtomは「参照の同一性」が命
 
-コンポーネント内や関数内で動的にオブジェクト化すると参照が変わり、**無限再レンダリングの原因**になります。
+コンポーネント内や関数内で動的にオブジェクト化すると参照が変わり、無限再レンダリングの原因になります。
 
-### ● トップレベルで手動オブジェクト化するとDXが悪化する
+### トップレベルで手動オブジェクト化するとDXが悪化する
 
-* TypeScriptの型定義が煩雑
 * Code Splitting による不要Atomの除外が効きにくい
 
 Jotaiの良さを削ぐ結果になります。
@@ -79,7 +83,7 @@ Jotaiの良さを削ぐ結果になります。
 
 ## 解決策: `import * as`（namespace import）を使う
 
-そこで推奨したいのが、**「ファイル（モジュール）自体をオブジェクトとして扱う」**というアプローチになります。
+そこで推奨したいのが、ファイル（モジュール）自体をオブジェクトとして扱うというアプローチです。
 
 関連するAtomをひとつのファイルにまとめ、利用側では次のように **namespace としてimport** します。
 
@@ -91,11 +95,6 @@ import { atom } from 'jotai';
 
 export const name = atom('');
 export const isLoggedIn = atom(false);
-export const profile = atom((get) => {
-  const userName = get(name);
-  const loggedIn = get(isLoggedIn);
-  return loggedIn ? { name: userName } : null;
-});
 ```
 
 ```ts
@@ -113,15 +112,15 @@ export const clear = atom(null, (_get, set) => set(items, []));
 ### 2. 利用側（コンポーネント）
 
 ```tsx
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 // ✨ namespace import
 import * as userAtoms from '@/atoms/userAtoms';
 import * as cartAtoms from '@/atoms/cartAtoms';
 
 export const HeaderCartSummary = () => {
-  const [userName] = useAtom(userAtoms.name);
-  const [isLoggedIn] = useAtom(userAtoms.isLoggedIn);
-  const [items] = useAtom(cartAtoms.items);
+  const userName = useAtomValue(userAtoms.name);
+  const isLoggedIn = useAtomValue(userAtoms.isLoggedIn);
+  const items = useAtomValue(cartAtoms.items);
   const totalPrice = useAtomValue(cartAtoms.totalPrice);
   const clearCart = useSetAtom(cartAtoms.clear);
 
@@ -144,7 +143,21 @@ export const HeaderCartSummary = () => {
 
 ## このパターンのメリット
 
-### 1. 変数名に `Atom` をつけなくて済む（より簡潔な命名）
+### 1. 出自（ドメイン）がコード上で明示される
+
+import文を見に行かずとも、どのドメインのAtomなのかが判断できます。
+
+例えば、次のように書いていれば。
+
+```ts
+useAtom(cartAtoms.result);
+```
+
+**cartAtomsというドメインのAtom**であると一目でわかります。Zustandの `useCartStore(state => state.items)` のような感覚で使えます。
+
+---
+
+### 2. 変数名に `Atom` をつけなくて済む（より簡潔な命名）
 
 これまでは以下のようでした。
 
@@ -159,20 +172,6 @@ export const HeaderCartSummary = () => {
 * `userAtoms.isLoggedIn`
 
 `useAtom(userAtoms.data)` と書く時点で「これはAtom」であることが明確です。
-
----
-
-### 2. 出自（ドメイン）がコード上で明示される
-
-import文を見に行かずとも、どのドメインのAtomなのかが判断できます。
-
-例えば、次のように書いていれば。
-
-```ts
-useAtom(cartAtoms.result);
-```
-
-**cartAtomsというドメインのAtom**であると一目でわかります。Zustandの `useCartStore(state => state.items)` のような感覚で使えます。
 
 ---
 
@@ -198,4 +197,4 @@ Atomが増えるのはJotaiの仕様ですが、**コードが散らかるのは
 
 これだけで、Jotaiの開発体験は大きく改善されます。
 
-Zustandの「まとまり感」が恋しくなったJotaiユーザーの方は、ぜひこのパターンを試してみてください。
+Zustandのまとまり感が恋しくなったJotaiユーザーの方は、ぜひこのパターンを試してみてください。

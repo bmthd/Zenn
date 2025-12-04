@@ -1,6 +1,6 @@
 ---
 title: "コンポーネントを\"生成\"する関数でロジックと型をカプセル化する"
-emoji: "🐡"
+emoji: "🎄"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [react, typescript, designpattern, yamadaui]
 published: true
