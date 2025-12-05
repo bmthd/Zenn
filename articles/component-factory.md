@@ -194,7 +194,7 @@ Component Factoryパターンを使うと、内部で使用するContextやStore
 
 以下に、先程の`createHoistableComponent`関数の実装例を示します。
 
-https://github.com/bmthd/lift/blob/c8571ad9885b0985d910733eab7862931cc46e61/lib/src/create-slottable-component.tsx
+https://github.com/bmthd/lift/blob/3f24c308b4602b62b289d60a32dfef514318e1c8/lib/src/create-hoistable-component.tsx
 
 このように、関数の中に定義してreturnする以外は至って普通のReactコンポーネントの実装です。
 
