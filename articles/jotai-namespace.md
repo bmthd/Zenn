@@ -34,18 +34,21 @@ Jotaiの基本思想は「Atomic」な状態管理です。
 ```ts
 // 😫 従来のimport、何がどこのAtomなのかパッと見でわからない
 import {
-  userNameAtom,
-  cartTotalPriceAtom,
+  customerNameAtom,
+  isLoggedInAtom,
+  cartTotalAtom,
+  cartCountAtom,
   clearCartAtom,
-  userIsLoggedInAtom,
-  cartItemsAtom,
 } from "./atoms";
 import { useAtom, useSetAtom, useAtomValue } from "jotai";
 
 ...
 // コンポーネント内
-const userName = useAtomValue(userNameAtom);
-const isLoggedIn = useAtomValue(userIsLoggedInAtom);
+const customerName = useAtomValue(customerNameAtom);
+const isLoggedIn = useAtomValue(isLoggedInAtom);
+const cartTotal = useAtomValue(cartTotalAtom);
+const cartCount = useAtomValue(cartCountAtom);
+const clearCart = useSetAtom(clearCartAtom);
 ...
 ```
 
@@ -53,12 +56,17 @@ const isLoggedIn = useAtomValue(userIsLoggedInAtom);
 
 Zustandのような単一Storeライブラリを使ったことがある人にはこの疑問が生まれます。
 
-> 「Atomも一つのオブジェクトにまとめて、`atoms.count` みたいにアクセスできればいいのに」
+> 「Atomも一つのオブジェクトにまとめて、`customerAtoms.name` みたいにアクセスできればいいのに」
 
 ```ts
+import { useCustomerStore } from './stores/customerStore';
+import { useCartStore } from './stores/cartStore';
 // Zustandならこう書ける
-const userName = useUserStore((state) => state.user.name);
-const isLoggedIn = useUserStore((state) => state.user.isLoggedIn);
+const customerName = useCustomerStore((state) => state.name);
+const isLoggedIn = useCustomerStore((state) => state.isLoggedIn);
+const cartTotal = useCartStore((state) => state.total);
+const cartCount = useCartStore((state) => state.count);
+const clearCart = useCartStore((state) => state.clear);
 ```
 
 しかし、Jotaiでは **Atomをオブジェクトにまとめるのは悪手（あるいは不可能）** です。
@@ -83,39 +91,56 @@ Jotaiの良さを削ぐ結果になります。
 
 ### 1. Atom定義側
 
-```ts
-// atoms/userAtoms.ts
+```ts:atoms/customerAtoms.ts
 import { atom } from 'jotai';
 
-export const name = atom('');
-export const isLoggedIn = atom(false);
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export const data = atom<Customer | null>(null);
+export const name = atom((get) => get(data)?.name ?? '');
+export const email = atom((get) => get(data)?.email ?? '');
+export const isLoggedIn = atom((get) => get(data) !== null);
 ```
 
-```ts
-// atoms/cartAtoms.ts
+```ts:atoms/cartAtoms.ts
 import { atom } from 'jotai';
 
-export const items = atom([]);
-export const totalPrice = atom((get) => {
+interface CartItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export const items = atom<CartItem[]>([]);
+export const total = atom((get) => {
   const cartItems = get(items);
-  return cartItems.reduce((sum, item) => sum + item.price, 0);
+  return cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+});
+export const count = atom((get) => {
+  const cartItems = get(items);
+  return cartItems.reduce((sum, item) => sum + item.quantity, 0);
 });
 export const clear = atom(null, (_get, set) => set(items, []));
 ```
 
 ### 2. 利用側（コンポーネント）
 
-```tsx
+```tsx:components/HeaderCartSummary.tsx
 import { useAtomValue, useSetAtom } from 'jotai';
 // ✨ namespace import
-import * as userAtoms from '@/atoms/userAtoms';
+import * as customerAtoms from '@/atoms/customerAtoms';
 import * as cartAtoms from '@/atoms/cartAtoms';
 
 export const HeaderCartSummary = () => {
-  const userName = useAtomValue(userAtoms.name);
-  const isLoggedIn = useAtomValue(userAtoms.isLoggedIn);
-  const items = useAtomValue(cartAtoms.items);
-  const totalPrice = useAtomValue(cartAtoms.totalPrice);
+  const customerName = useAtomValue(customerAtoms.name);
+  const isLoggedIn = useAtomValue(customerAtoms.isLoggedIn);
+  const cartTotal = useAtomValue(cartAtoms.total);
+  const cartCount = useAtomValue(cartAtoms.count);
   const clearCart = useSetAtom(cartAtoms.clear);
 
   if (!isLoggedIn) {
@@ -124,9 +149,9 @@ export const HeaderCartSummary = () => {
 
   return (
     <div>
-      <p>{userName}さんのカート</p>
-      <p>商品点数: {items.length}点</p>
-      <p>合計: {totalPrice.toLocaleString()}円</p>
+      <p>{customerName}さんのカート</p>
+      <p>商品点数: {cartCount}点</p>
+      <p>合計: {cartTotal.toLocaleString()}円</p>
       <button onClick={clearCart}>カートを空にする</button>
     </div>
   );
@@ -142,7 +167,7 @@ import文を見に行かずとも、どのドメインのAtomなのかが判断�
 例えば、次のように書いていれば。
 
 ```ts
-useAtom(cartAtoms.result);
+useAtom(cartAtoms.items);
 ```
 
 **cartAtomsというドメインのAtom**であると一目でわかります。
@@ -152,17 +177,21 @@ Zustandの `useCartStore(state => state.items)` のような感覚で使えま�
 
 before:
 
-* `userAtom`
-* `userProfileAtom`
+* `customerNameAtom`
 * `isLoggedInAtom`
+* `cartTotalAtom`
+* `cartCountAtom`
+* `clearCartAtom`
 
 after:
 
-* `userAtoms.data`
-* `userAtoms.profile`
-* `userAtoms.isLoggedIn`
+* `customerAtoms.name`
+* `customerAtoms.isLoggedIn`
+* `cartAtoms.total`
+* `cartAtoms.count`
+* `cartAtoms.clear`
 
-`useAtom(userAtoms.data)` と書く時点で「これはAtom」であることが明確です。
+`useAtom(customerAtoms.name)` と書く時点で「これはAtom」であることが明確です。
 
 ---
 
@@ -175,6 +204,65 @@ namespace importを使うには、関連するAtomをひとつのファイルに
 > 「namespaceで読みやすくするために、Atomを機能ごとに切り分けよう」
 
 その結果、**ディレクトリ構成が綺麗に保たれます**。
+
+### 4. namespaceはネストできる
+
+機能が複雑化した場合、namespaceをネストして更に細かく整理できます。
+
+```bash: ディレクトリ構造のイメージ
+atoms/
+└── carts
+    ├── index.ts ## ここをエントリポイントとして、全てのatomをまとめる
+    ├── items.ts
+    └── prices.ts
+```
+
+<!-- textlint-disable ja-technical-writing/ja-no-mixed-period -->
+:::details コード例
+<!-- textlint-enable ja-technical-writing/ja-no-mixed-period -->
+
+```ts:atoms/carts/items.ts
+import { atom } from 'jotai';
+
+interface CartItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export const list = atom<CartItem[]>([]);
+export const count = atom((get) => {
+  const items = get(list);
+  return items.reduce((sum, item) => sum + item.quantity, 0);
+});
+```
+
+```ts:atoms/carts/prices.ts
+import { atom } from 'jotai';
+import * as itemAtoms from './items';
+
+export const total = atom((get) => {
+  const items = get(itemAtoms.list);
+  return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+});
+export const tax = atom((get) => Math.floor(get(total) * 0.1));
+export const totalWithTax = atom((get) => get(total) + get(tax));
+```
+
+```ts:atoms/carts/index.ts
+export * as items from './items';
+export * as prices from './prices';
+```
+
+```tsx:components/cart-summary.tsx
+import { useAtomValue } from 'jotai';
+import * as cartAtoms from '@/atoms/carts';
+// ✅️cartAtoms.items.list, cartAtoms.prices.total のように使える！
+const itemCount = useAtomValue(cartAtoms.items.count);
+const totalWithTax = useAtomValue(cartAtoms.prices.totalWithTax);
+```
+:::
 
 ## まとめ
 
