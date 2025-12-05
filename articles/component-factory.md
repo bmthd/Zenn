@@ -355,7 +355,8 @@ const Confirm = createCallable<Props, Response>(({ call, message }) => (
 
 export default function Page() {
   const handleClick = async () => {
-    await Confirm.call()
+    const result = await Confirm.call()
+    //      ^? Response
   }
   return (
     <Confirm.Root>
