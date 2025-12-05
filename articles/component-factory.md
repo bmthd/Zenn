@@ -274,6 +274,45 @@ Component Factory はあくまでコンポーネント定義を生成するユ�
 Factoryを返す場合、その返り値は`withXXXX`のように、それがどの文脈で使われるのかを示す命名が多いです。
 この場合Factoryを生成するFactoryなので、Meta Factory関数とも言えますね。
 
+### React
+
+そもそもの話、React自体がComponent Factoryパターンを活用しています。
+
+```tsx
+import { createContext } from "react";
+
+type Theme = "light" | "dark";
+
+export const ThemeContext = createContext<Theme>("light");
+
+export default function App() {
+  return (
+    // Factoryから生成されたProviderで囲む
+    <ThemeContext value="dark">
+      <MyComponent />
+    </ThemeContext>
+  );
+}
+
+export function MyComponent() {
+  // ThemeContextが持つ型情報と内部のプロパティを読み取る
+  const theme = use(ThemeContext);
+  return <div>Current theme: {theme}</div>;
+}
+
+export function ThemedButton() {
+  return (
+    // 子要素にコンテキストを渡すためのConsumerコンポーネントも生成されている
+    <ThemeContext.Consumer>
+      {(theme) => <button className={theme}>Click me</button>}
+    </ThemeContext.Consumer>
+  );
+}
+```
+
+`createContext`関数が、`Context(Context.Provider)`コンポーネント、`use(Context)`ストア、`Consumer`コンポーネントを生成しています。
+これが動く時点で、なんの不思議も無いわけですね。
+
 ### Yamada UI
 
 Yamada UIは日本発のコンポーネントライブラリです。
