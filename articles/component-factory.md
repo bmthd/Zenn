@@ -12,8 +12,8 @@ published: true
 
 ## はじめに
 
-モダンなコンポーネントライブラリのソースコードを読んでいて、最近見かけることが増えてきた「Component Factoryパターン」について解説します。
-ちなみに、このComponent Factoryパターンは通常のファクトリ関数をもとに私が勝手に名付けたもので、一般的な名称ではありません。
+モダンなコンポーネントライブラリのソースコードを読んでいて、最近見かけることが増えてきた「Component Factory関数」について解説します。
+ちなみに、このComponent Factory関数は通常のファクトリ関数をもとに私が勝手に名付けたもので、一般的な名称ではありません。
 流行らせたい！
 
 ### やりたいことのイメージ
@@ -98,7 +98,7 @@ const HeaderActionContext = createContext<{
 
 `use(Context)`を呼び出すコンポーネントはすべてクライアントコンポーネントである必要があります。
 そのため、`Context`だけを共通化の対象とする場合、使う側は`Context`を読み取るだけにクライアントコンポーネントを宣言する必要があります。
-その点、Component Factoryパターンを使うと、Contextの宣言とそれを使うコンポーネントの宣言を1箇所にまとめることができます。
+その点、Component Factory関数を使うと、Contextの宣言とそれを使うコンポーネントの宣言を1箇所にまとめることができます。
 その結果、"use client" ディレクティブを1箇所に付与するだけで済みます。
 これが、コードの可読性と保守性を向上させる大きなメリットとなります。
 
@@ -106,9 +106,9 @@ const HeaderActionContext = createContext<{
 
 複数の関連するコンポーネント群が似通った構成を持つ場合に共通化をしようとしたとき、それぞれのコンポーネントに型引数を渡す必要が出てきます。
 場合によっては、型推論をさせるためだけに本来不要な引数を渡す必要が出てくることもあります。
-Component Factoryパターンを使うと、特定の引数に基づいて生成されたコンポーネント群が同じ型情報を共有するため、型引数の冗長な指定を避けることができます。
+Component Factory関数を使うと、特定の引数に基づいて生成されたコンポーネント群が同じ型情報を共有するため、型引数の冗長な指定を避けることができます。
 
-以下は架空のフォームライブラリにおけるComponent Factoryパターンの利用例です。
+以下は架空のフォームライブラリにおけるComponent Factory関数の利用例です。
 
 ```tsx: form-factory.tsx
 import { createFormComponents } from "@/lib/form-factory";
@@ -187,7 +187,7 @@ Fieldコンポーネントは本来スキーマを受け取る必要はありま
 
 
 ### 実装をカプセル化することができる
-Component Factoryパターンを使うと、内部で使用するContextやStoreの存在を隠蔽し、利用者にはシンプルなコンポーネントだけを露出できます。
+Component Factory関数を使うと、内部で使用するContextやStoreの存在を隠蔽し、利用者にはシンプルなコンポーネントだけを露出できます。
 これにより、APIの設計がシンプルになり、コードリーディング時の理解が容易になります。
 
 ## 実装例
@@ -207,8 +207,8 @@ React の公式ドキュメントやベストプラクティスでは、「コ�
 
 このルールが存在する理由は、親コンポーネントが再レンダリングされるたびに Child 関数が再生成され、React がそれを「全く別の新しいコンポーネント」と認識してしまうためです。その結果、アンマウントと再マウントが繰り返され、状態（State）が失われたり、パフォーマンスが著しく低下したりします。
 
-### Factory パターンが安全な理由
-今回紹介した Component Factory パターンは、一見すると関数内でコンポーネントを作っているため、このルールに抵触しそうに見えます。しかし、この関数（Factory）を呼び出す場所が異なります。
+### Factory関数が安全な理由
+今回紹介した Component Factory関数は、一見すると関数内でコンポーネントを作っているため、このルールに抵触しそうに見えます。しかし、この関数（Factory）を呼び出す場所が異なります。
 
 ```tsx
 // モジュールレベル（トップレベル）で一度だけ実行される
@@ -254,7 +254,7 @@ export default function Page() {
 参照を安定させながら、名前空間経由でアクセスできます。
 :::
 
-また、Factory 関数をコンポーネント内部で呼び出すのはNGです。
+また、Factory関数をコンポーネント内部で呼び出すのはNGです。
 
 ```tsx
 export default function Page() {
@@ -269,14 +269,14 @@ Component Factory はあくまでコンポーネント定義を生成するユ�
 
 ## どのようなライブラリが実装している？
 
-一般的に、Component Factoryパターンは`createXXXXComponent`のような名前で提供されることが多いです。
+一般的に、Component Factory関数は`createXXXXComponent`のような名前で提供されることが多いです。
 コンポーネントだけでなく、hooksや、Factoryを生成でき、同時に様々なAPIを生成できます。
 Factoryを返す場合、その返り値は`withXXXX`のように、それがどの文脈で使われるのかを示す命名が多いです。
 この場合Factoryを生成するFactoryなので、Meta Factory関数とも言えますね。
 
 ### React
 
-そもそもの話、React自体がComponent Factoryパターンを活用しています。
+そもそもの話、React自体がComponent Factory関数を活用しています。
 
 ```tsx
 import { createContext } from "react";
@@ -333,7 +333,7 @@ React Callは、window.confirmのような感覚でモーダルダイアログ�
 https://react-call.desko.dev/
 
 
-ダイアログ、トースト通知などのAPIに特化したヘッドレスライブラリで、Component Factoryパターンを活用しています。
+ダイアログ、トースト通知などのAPIに特化したヘッドレスライブラリで、Component Factory関数を活用しています。
 `createCallable`関数が型情報と、コンポーネントを受け取れるのが特徴で、その受け取った型情報を徹底的に使い倒している点が非常に面白いです。
 
 <!-- textlint-disable ja-technical-writing/ja-no-mixed-period -->
@@ -443,6 +443,6 @@ export default function Page() {
 
 ## まとめ
 
-Component Factory パターンは、複雑な依存関係を持つコンポーネント群を、クリーンかつ型安全に提供するための設計パターンです。
+Component Factory関数は、複雑な依存関係を持つコンポーネント群を、クリーンかつ型安全に提供するための設計パターンです。
 このパターンは、Headless UI ライブラリの内部実装や、大規模なアプリケーションにおける共通機能（トースト通知、モーダル管理、フォーム生成など）で非常に有効です。
 「`Context`の`Provider`を毎回書くのが面倒だな」「型引数を毎回渡すのが冗長だな」と感じたときは、ぜひこの Component Factory パターンを思い出してみてください。
