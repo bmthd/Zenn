@@ -3,7 +3,7 @@ title: "【TypeScript】値・型・名前空間の「三重定義」でReactコ
 emoji: "📐"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["typescript", "react", "designpattern", "yamadaui"]
-published: false
+published: true
 ---
 ## はじめに
 
