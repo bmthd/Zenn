@@ -153,6 +153,8 @@ export const MyListCustom = () => {
 
 例として、`ButtonGroup`、`Tabs`、`List` という3つのコンポーネントのケースを比較してみます。
 
+:::details ButtonGroup / Tabs / List の3パターンで比較する
+
 ### `ButtonGroup.Item`【値のみ】
 
 `ButtonGroup` は複数のボタンを横並びにするなど、子要素をまとめてレイアウトするためのコンポーネントを想定してください。内部で `Item` という子要素コンポーネントを持ちますが、ボタン自体は `children` として渡すだけなので、Item を型として外部に公開する必要はありません。
@@ -197,6 +199,8 @@ export const MyListCustom = () => {
 // または
 <List.Root items={[{ name: "apple" }, { name: "banana" }]} />
 ```
+
+:::
 
 `ItemType` / `ItemComponent` スタイルで命名すると、命名がブレます。
 `ButtonGroup` には `ButtonGroup.ItemComponent`、`List` には `List.ItemType` と `List.ItemComponent`、`Tabs` には値としての Item が存在しないのに `Tabs.ItemType` のような名前を採用することになります。
