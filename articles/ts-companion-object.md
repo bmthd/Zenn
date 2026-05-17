@@ -199,7 +199,7 @@ export const MyListCustom = () => {
 ```
 
 `ItemType` / `ItemComponent` スタイルで命名すると、命名がブレます。
-`ButtonGroup` には `ButtonGroupItemComponent`、`List` には `ListItemType` と `ListItemComponent`、`Tabs` には値としての Item が存在しないのに `TabsItemType` のような名前を採用することになります。
+`ButtonGroup` には `ButtonGroup.ItemComponent`、`List` には `List.ItemType` と `List.ItemComponent`、`Tabs` には値としての Item が存在しないのに `Tabs.ItemType` のような名前を採用することになります。
 これは「Itemが型としてしか存在しないのに、わざわざ `Type` を後置するのか？」という不自然さを生みます。
 それが型であるとか、コンポーネントであるかはユーザーが宣言する際の文脈で自ずと決まるものであり、わざわざ名前で区別する必要はないのです。
 大体、エディタでホバーすればそれがコンポーネントなのか型なのかは分かる話です。
