@@ -322,14 +322,14 @@ Duplicate identifier 'Root'.(2300)
 ```tsx
 // ⭕️ グッドパターン：同名の宣言はセットにする
 
+// Root 関連
+export namespace Root {...}
+export const Root = ...
+
 // Item 関連
 export interface Item {...}
 export namespace Item {...}
 export const Item = ...
-
-// Root 関連
-export namespace Root {...}
-export const Root = ...
 ```
 
 こうすることで、TypeScriptはこれらを「ひとつのマージされたシンボル」としてスムーズに認識してくれます。
