@@ -24,7 +24,8 @@ export const Rectangle = {
   },
 };
 
-const rectangle: Rectangle = Rectangle.from(1, 3); // Rectangleという宣言が型と値の両方で使える
+// Rectangleという宣言が型と値の両方で使える！
+const rectangle: Rectangle = Rectangle.from(1, 3); 
 ```
 
 [サバイバルTypeScript](https://typescriptbook.jp/tips/companion-object)を読んだ方は、型（Type）と値（Value）を同じ名前で定義するテクニックとしてご存知かもしれません。
