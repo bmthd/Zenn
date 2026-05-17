@@ -206,17 +206,24 @@ export const MyListCustom = () => {
 
 一方、三重定義を用いると `ButtonGroup.Item`、`List.Item`、`Tabs.Item` というパターンで統一できます。`ButtonGroup.Item` が値のみ、`List.Item` が型と値の両方、`Tabs.Item` が型のみであっても、利用者は「Item は `コンポーネント名.Item` で参照できる」というルール一つだけ覚えれば済みます。これはOSSのように学習コストや認知負荷が重要視される洗練されたAPIを設計する場面で特に効いてきます。
 
-## 技術的な前提条件：namespaceは「型のみ」であるべき
+## 技術的な前提条件：マージ対象のnamespaceは「型のみ」であるべき
 
 この「型・値・名前空間」の三重コンパニオンを実現するには、重要な前提条件があります。
-それは、**「namespace 内には型のみを含めること」** です。
+それは、**「同名の `const` や `function` とマージしたい `namespace` には、型のみを含めること」** です。
 
 なぜか？
 
 TypeScript独自構文である `namespace` が「値」を含んでしまうと、コンパイル後のJavaScriptにも即時関数やオブジェクトとして出力され、ランタイムの挙動を変えてしまうからです。
-もし `namespace List` の中に値の実体が含まれていると、別途定義した `const List = ...`（値）と名前が衝突してしまいます。
+もし `namespace Item` の中に値の実体が含まれていると、別途定義した `const Item = ...`（値）と名前が衝突してしまいます。
 
 TypeScriptコンパイラは、`namespace` が型情報しか持っていない（＝ランタイムにJSが出力されない）ことを知っている場合のみ、同名の `const` や `function` とのマージを許可します。
+
+:::message
+**補足**
+本記事の例では、外側の `namespace List` は `Root` や `Item` といった値の宣言（`declare const`）を含んでおり、型のみではありません。これは `namespace List` 自体を同名の `const List` とマージする必要がないためです。
+一方、内側の `namespace Item` は `interface Item` や `const Item` とマージする必要があるため、型（`interface Props`）のみを含めています。
+つまり、「型のみにすべき」という制約は **すべての `namespace` に対してではなく、同名の値とマージしたい `namespace` に限った話** です。
+:::
 
 ### import * as では代替できない理由
 
