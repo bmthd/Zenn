@@ -260,7 +260,7 @@ if (env.VITE_FEATURE_DARK_MODE) {
 
 ## Vite との型統合
 
-`env` の型は整いました。しかし、`import.meta.env.VITE_API_TIMEOUT_MS` の型はまだ `string` のままです。
+`env` の型は整いました。しかし、`import.meta.env.VITE_API_TIMEOUT_MS` の型はまだ `string | undefined` のままです。
 Vite の型定義（`vite-env.d.ts`）は env のキーを知らないからです。
 
 これを解決するために、Valibot スキーマから `ImportMetaEnv` を生成し、declaration merging で `import.meta.env` の型に反映します。
