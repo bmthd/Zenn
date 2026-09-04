@@ -8,12 +8,11 @@ published: true
 
 不具合修正のPRをレビューしていて、「この追加されたテストは、修正前のコードで本当に落ちていたのだろうか」と手が止まったことはありませんか？
 
-CIがGreenになれば、修正後の状態でテストが通っていることは分かります。
-分からないのは、そのテストが修正前に落ちていたかどうかです。
+CIがGreenになれば、修正後の状態でテストが通っていることは分かりますが、そのテストが修正前に落ちていたかどうかまでは、すぐにはわかりません。
 実は、これを簡単に確かめる方法があります。
 Redの状態そのものを、CIがGreenと判定できる形にしてしまえばよいのです。
 
-この記事では、[`gh stack`](https://docs.github.com/ja/pull-requests/reference/stacked-prs-cli-commands)の登場で行いやすくなった、落ちるテストをCIに刻む手法、**「Red-Green Stacked PR」**について紹介していきます。
+この記事では、[`gh stack`](https://docs.github.com/ja/pull-requests/reference/stacked-prs-cli-commands)の登場で行いやすくなった、落ちるテストをCIに刻む手法、 **「Red-Green Stacked PR」** について紹介していきます。
 なお、この呼び名は本論執筆の便宜上私が考案した名称です。
 TDDのRed-Green RefactorとGitHubのStacked PRを組み合わせた造語となっています。
 察しのいい方はこの名前だけで何をしたいのか想像できたかもしれませんね😎
