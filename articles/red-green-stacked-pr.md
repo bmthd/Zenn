@@ -17,6 +17,9 @@ Redの状態そのものを、CIがGreenと判定できる形にしてしまえ�
 TDDのRed-Green RefactorとGitHubのStacked PRを組み合わせた造語となっています。
 察しのいい方はこの名前だけで何をしたいのか想像できたかもしれませんね😎
 
+gh stackについてはこちらの記事が参考になります。
+https://zenn.dev/ubie_dev/articles/gh-stack-introduction
+
 ## レビュアーが手で確かめていることは何か？
 
 一般的な不具合修正PRには、次の2つが入ります。
