@@ -126,6 +126,13 @@ main
 
 再現テストのPRと修正のPRを積み、RedとGreenの両方をCIの履歴に残すことができました！
 
+実際にこの形で作ったPRを公開しています。
+
+- [PR 1: 再現テストの追加](https://github.com/bmthd/red-green-stacked-pr-example/pull/2)
+- [PR 2: 不具合の修正](https://github.com/bmthd/red-green-stacked-pr-example/pull/3)
+
+PR 2のFiles changedを開くと、テスト側の差分が `.fails` を外した1行だけであることが確認できます。
+
 ## PR 1のGreenが保証していないこと
 
 では、PR 1のGreenは「不具合を正しく再現できている」ことの証明になるでしょうか。
