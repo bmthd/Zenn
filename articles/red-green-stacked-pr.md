@@ -246,4 +246,4 @@ PR BのbaseブランチにPR Aを指定すれば手動でも組めますが、�
 ここを機械に渡す方法は、まだ思いついていません。
 AIやツールが便利になっても、我々が必要でなくなるのはまだまだ先かもしれませんね。
 
-[^1]: Jestでは `test.failing`（jest-circusランナーのみ）、Playwrightでは `test.fail()` が同じ役割を持ちます。なお、Vitestは4.1以降、`fails` を付けたテストをテストサマリーに集計します。
+[^1]: Jestでは `test.failing`、Playwrightでは `test.fail()` が同じ役割を持ちます。なお、Vitestは4.1以降、`fails` を付けたテストをテストサマリーに集計します。
