@@ -254,6 +254,28 @@ gh stack merge
 
 どちらの経路でも、スタックに含まれるPRのどれか1つでもマージできなければ、どれもマージされません。
 
+### squashマージでもコミットは潰れない
+
+マージ方法は、単体のPRと同じく merge / squash / rebase から選べます。
+ここで気になるのは、squashを選んだときにスタック全体が1つのコミットへ潰れてしまわないか、という点です。
+
+潰れません。
+squashが1つのコミットにまとめる範囲はPR単位で、n個のPRを含むスタックは、`main` 側でn個のスカッシュコミットになります[^2]。
+この記事の構成なら、`main` の履歴は次の形です。
+
+```text
+main
+├─ test: 不具合を再現するテストを追加   ← PR 1 のスカッシュコミット
+└─ fix: 不具合を修正                    ← PR 2 のスカッシュコミット
+```
+
+さきほど、コミットを分けるだけでは足りない理由として「squash mergeを使っていれば、`main` に入った時点でcommit 1は消えています」と書きました。
+分割の単位をPRに変えておけば、squashマージでもこの2つは別々のコミットとして残ります。
+CIの履歴だけでなく、`main` の履歴の上でも、再現と修正を別々に辿れるということです。
+
+なお、PR 1側のコミットには `test.fails` が付いたままです。
+成否を反転させたテストなので、その時点の `main` をcheckoutしてもテストは通ります。
+
 ## おわりに
 
 冒頭に挙げた、ブランチをcheckoutして修正をコメントアウトする手順は、確認としては正しいものでした。
@@ -270,3 +292,5 @@ PR BのbaseブランチにPR Aを指定すれば手動でも組めますが、�
 AIやツールが便利になっても、我々が必要でなくなるのはまだまだ先かもしれませんね。
 
 [^1]: Jestでは `test.failing`、Playwrightでは `test.fail()` が同じ役割を持ちます。なお、Vitestは4.1以降、`fails` を付けたテストをテストサマリーに集計します。
+
+[^2]: [Stacked pull requests - GitHub Docs](https://docs.github.com/en/pull-requests/reference/stacked-pull-requests) に「Squash creates one clean, squashed commit per pull request. Merging `n` pull requests creates `n` squashed commits on the base branch.」と記載されています。マージ方法を問わず「マージ後のコミット履歴は、下から順に1つずつマージした場合と同じになる」とされています。
