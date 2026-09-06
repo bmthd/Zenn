@@ -3,7 +3,7 @@ title: "不具合はCIに刻もう。「Red-Green Stacked PR」のすすめ"
 emoji: "🧪"
 type: "tech"
 topics: ["vitest", "testing", "git", "ci", "github"]
-published: false
+published: true
 ---
 
 不具合修正のPRをレビューしていて、「この追加されたテストは、修正前のコードで本当に落ちていたのだろうか」と手が止まったことはありませんか？
